@@ -1,8 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Flutter fine shyyyy
 
 on:
@@ -26,6 +21,10 @@ jobs:
         working-directory: ./geo_master
         run: flutter pub get
 
+      - name: Enable web
+        working-directory: ./geo_master
+        run: flutter create . --platforms web
+
       - name: Build web
         working-directory: ./geo_master
         run: flutter build web --release
@@ -34,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: web-build
-          path: build/web/
+          path: geo_master/build/web/
 
   deploy-web:
     runs-on: ubuntu-latest
