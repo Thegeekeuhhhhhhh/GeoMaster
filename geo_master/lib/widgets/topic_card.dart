@@ -22,17 +22,19 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: comingSoon ? null : onTap,
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border(left: BorderSide(color: accentColor, width: 5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.06),
+              color: colorScheme.shadow.withOpacity(0.06),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -54,8 +56,8 @@ class TopicCard extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: comingSoon
-                              ? const Color(0xFF999999)
-                              : const Color(0xFF222222),
+                              ? colorScheme.onSurface.withOpacity(0.4)
+                              : colorScheme.onSurface,
                         ),
                       ),
                       if (comingSoon) ...[
@@ -66,14 +68,14 @@ class TopicCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFEEEEEE),
+                            color: colorScheme.surfaceVariant,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             comingSoonLabel,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF888888),
+                              color: colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ),
@@ -83,9 +85,9 @@ class TopicCard extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: Color(0xFF777777),
+                      color: colorScheme.onSurface.withOpacity(0.55),
                     ),
                   ),
                 ],

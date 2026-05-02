@@ -16,8 +16,10 @@ class GeoMasterApp extends StatefulWidget {
 
 class _GeoMasterAppState extends State<GeoMasterApp> {
   AppLanguage _language = AppLanguage.english;
+  bool _theme = true;
 
   void _setLanguage(AppLanguage lang) => setState(() => _language = lang);
+  void _setTheme(bool theme) => setState(() => _theme = theme);
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +34,20 @@ class _GeoMasterAppState extends State<GeoMasterApp> {
         fontFamily: 'Georgia',
         useMaterial3: true,
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF1A73E8),
+          brightness: Brightness.dark,
+        ),
+        fontFamily: 'Georgia',
+        useMaterial3: true,
+      ),
+      themeMode: _theme ? ThemeMode.light : ThemeMode.dark,
       home: HomePage(
         currentLanguage: _language,
         onLanguageChanged: _setLanguage,
+        currentTheme: _theme,
+        onThemeChanged: _setTheme,
         l10n: AppStrings.of(_language),
       ),
     );

@@ -50,7 +50,8 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
   }
 
   void _startNewGame() {
-    final pool = List<Country>.from(_allCountries)..shuffle(_random);
+    final pool = List<Country>.from(_allCountries.where((c) => c.unMember))
+      ..shuffle(_random);
     setState(() {
       _quizPool = pool.take(_quizSize).toList();
       _currentIndex = 0;
@@ -66,7 +67,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
   void _buildChoices() {
     final others = _allCountries.where((c) => c.cca3 != _current.cca3).toList()
       ..shuffle(_random);
-    _choices = [...others.take(3), _current]..shuffle(_random);
+    _choices = [...others.take(7), _current]..shuffle(_random);
   }
 
   void _selectAnswer(int index) {
@@ -125,35 +126,38 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
     );
   }
 
-  Color _choiceColor(int index) {
-    if (!_answered) return Colors.white;
-    if (_choices[index].cca3 == _current.cca3) return const Color(0xFFE8F5E9);
-    if (index == _selectedAnswer) return const Color(0xFFFFEBEE);
-    return Colors.white;
+  Color _choiceColor(int index, ColorScheme colorScheme) {
+    if (!_answered) return colorScheme.surface;
+    if (_choices[index].cca3 == _current.cca3)
+      return Colors.green.withOpacity(0.15);
+    if (index == _selectedAnswer) return Colors.red.withOpacity(0.1);
+    return colorScheme.surface;
   }
 
-  Color _choiceBorderColor(int index) {
-    if (!_answered) return const Color(0xFFDDDDDD);
-    if (_choices[index].cca3 == _current.cca3) return const Color(0xFF2E7D32);
-    if (index == _selectedAnswer) return const Color(0xFFC62828);
-    return const Color(0xFFDDDDDD);
+  Color _choiceBorderColor(int index, ColorScheme colorScheme) {
+    if (!_answered) return colorScheme.outlineVariant;
+    if (_choices[index].cca3 == _current.cca3) return Colors.green.shade700;
+    if (index == _selectedAnswer) return Colors.red.shade700;
+    return colorScheme.outlineVariant;
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F0E8),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A237E)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.quizTitle,
-          style: const TextStyle(
-            color: Color(0xFF1A237E),
+          style: TextStyle(
+            color: colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -164,8 +168,8 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
               child: Center(
                 child: Text(
                   '${_currentIndex + 1} / ${_quizPool.length}',
-                  style: const TextStyle(
-                    color: Color(0xFF555555),
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withOpacity(0.6),
                     fontSize: 14,
                   ),
                 ),
@@ -174,28 +178,31 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
         ],
       ),
       body: _loading
-          ? _buildLoading()
+          ? _buildLoading(colorScheme)
           : _error != null
-          ? _buildError()
-          : _buildQuiz(),
+          ? _buildError(colorScheme)
+          : _buildQuiz(colorScheme),
     );
   }
 
-  Widget _buildLoading() => Center(
+  Widget _buildLoading(ColorScheme colorScheme) => Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const CircularProgressIndicator(color: Color(0xFF1A237E)),
+        CircularProgressIndicator(color: colorScheme.primary),
         const SizedBox(height: 16),
         Text(
           l10n.loading,
-          style: const TextStyle(color: Color(0xFF555555), fontSize: 15),
+          style: TextStyle(
+            color: colorScheme.onSurface.withOpacity(0.6),
+            fontSize: 15,
+          ),
         ),
       ],
     ),
   );
 
-  Widget _buildError() => Center(
+  Widget _buildError(ColorScheme colorScheme) => Center(
     child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -204,7 +211,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
         Text(
           _error!,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Color(0xFF666666)),
+          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
         ),
         const SizedBox(height: 20),
         ElevatedButton(onPressed: _loadCountries, child: Text(l10n.retry)),
@@ -212,7 +219,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
     ),
   );
 
-  Widget _buildQuiz() {
+  Widget _buildQuiz(ColorScheme colorScheme) {
     final progress = (_currentIndex + 1) / _quizPool.length;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -224,27 +231,30 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor: const Color(0xFFDDDDDD),
-              valueColor: const AlwaysStoppedAnimation(Color(0xFF1A73E8)),
+              backgroundColor: colorScheme.surfaceVariant,
+              valueColor: AlwaysStoppedAnimation(colorScheme.primary),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             '${l10n.score}: $_score',
             textAlign: TextAlign.right,
-            style: const TextStyle(color: Color(0xFF555555), fontSize: 13),
+            style: TextStyle(
+              color: colorScheme.onSurface.withOpacity(0.6),
+              fontSize: 13,
+            ),
           ),
           const SizedBox(height: 24),
 
-          // Flag image retrieved from internet
+          // Flag image
           Container(
             height: 180,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: colorScheme.shadow.withOpacity(0.08),
                   blurRadius: 16,
                   offset: const Offset(0, 6),
                 ),
@@ -257,8 +267,10 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
                 fit: BoxFit.contain,
                 loadingBuilder: (_, child, progress) {
                   if (progress == null) return child;
-                  return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF1A73E8)),
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: colorScheme.primary,
+                    ),
                   );
                 },
                 errorBuilder: (_, __, ___) => const Center(
@@ -272,47 +284,66 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
           Text(
             l10n.quizQuestion,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              color: Color(0xFF444444),
+              color: colorScheme.onSurface.withOpacity(0.7),
               fontStyle: FontStyle.italic,
             ),
           ),
           const SizedBox(height: 16),
 
-          // Answer choices rendered in the selected language
-          ..._choices.asMap().entries.map((entry) {
-            final i = entry.key;
-            final country = entry.value;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: GestureDetector(
-                onTap: () => _selectAnswer(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16,
-                    horizontal: 20,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _choiceColor(i),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: _choiceBorderColor(i), width: 2),
-                  ),
-                  child: Text(
-                    country.nameIn(widget.language),
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: _answered && country.cca3 == _current.cca3
-                          ? const Color(0xFF2E7D32)
-                          : const Color(0xFF222222),
-                    ),
-                  ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final itemHeight = 70.0;
+              final rows = (_choices.length / 2).ceil();
+              final totalHeight = rows * itemHeight + (rows - 1) * 12;
+
+              return SizedBox(
+                height: totalHeight,
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: constraints.maxWidth / 2 / itemHeight,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: _choices.asMap().entries.map((entry) {
+                    final i = entry.key;
+                    final country = entry.value;
+                    final isCorrect = country.cca3 == _current.cca3;
+                    return GestureDetector(
+                      onTap: () => _selectAnswer(i),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _choiceColor(i, colorScheme),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                            color: _choiceBorderColor(i, colorScheme),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
+                          country.nameIn(widget.language),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: _answered && isCorrect
+                                ? Colors.green.shade700
+                                : colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
 
           const Spacer(),
 
@@ -320,8 +351,8 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
             ElevatedButton(
               onPressed: _next,
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A237E),
-                foregroundColor: Colors.white,
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),

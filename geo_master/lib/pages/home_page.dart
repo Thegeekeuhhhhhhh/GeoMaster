@@ -8,38 +8,47 @@ import '../enums/app_language.dart';
 class HomePage extends StatelessWidget {
   final AppLanguage currentLanguage;
   final ValueChanged<AppLanguage> onLanguageChanged;
+  final bool currentTheme;
+  final ValueChanged<bool> onThemeChanged;
   final AppStrings l10n;
 
   const HomePage({
     super.key,
     required this.currentLanguage,
     required this.onLanguageChanged,
+    required this.currentTheme,
+    required this.onThemeChanged,
     required this.l10n,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header + language picker
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'GeoMaster',
                     style: TextStyle(
                       fontSize: 38,
                       fontWeight: FontWeight.w900,
-                      color: Color(0xFF1A237E),
+                      color: colorScheme.primary,
                       letterSpacing: -1,
                     ),
+                  ),
+                  Switch(
+                    value: currentTheme,
+                    onChanged: (val) => onThemeChanged(val),
                   ),
                   LanguagePicker(
                     current: currentLanguage,
@@ -49,19 +58,19 @@ class HomePage extends StatelessWidget {
               ),
               Text(
                 l10n.tagline,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
-                  color: Color(0xFF666666),
+                  color: colorScheme.onSurface.withOpacity(0.55),
                   fontStyle: FontStyle.italic,
                 ),
               ),
               const SizedBox(height: 28),
 
-              // Welcome
+              // Welcome banner
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1A237E),
+                  color: colorScheme.primary,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -74,8 +83,8 @@ class HomePage extends StatelessWidget {
                         children: [
                           Text(
                             l10n.welcomeTitle,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: colorScheme.onPrimary,
                               fontSize: 17,
                               fontWeight: FontWeight.bold,
                             ),
@@ -83,8 +92,8 @@ class HomePage extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             l10n.welcomeSubtitle,
-                            style: const TextStyle(
-                              color: Color(0xFFB0BEC5),
+                            style: TextStyle(
+                              color: colorScheme.onPrimary.withOpacity(0.7),
                               fontSize: 13,
                             ),
                           ),
@@ -98,11 +107,11 @@ class HomePage extends StatelessWidget {
 
               Text(
                 l10n.topicsHeader,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.5,
-                  color: Color(0xFF333333),
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 16),

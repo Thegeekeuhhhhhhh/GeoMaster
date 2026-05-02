@@ -14,6 +14,8 @@ class LanguagePicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () => showModalBottomSheet(
         context: context,
@@ -31,9 +33,9 @@ class LanguagePicker extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFDDDDDD)),
+          border: Border.all(color: colorScheme.outlineVariant),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -42,14 +44,18 @@ class LanguagePicker extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               current.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF333333),
+                color: colorScheme.onSurface,
               ),
             ),
             const SizedBox(width: 4),
-            const Icon(Icons.expand_more, size: 16, color: Color(0xFF888888)),
+            Icon(
+              Icons.expand_more,
+              size: 16,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
