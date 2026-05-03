@@ -3,10 +3,10 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/models/country.dart';
-import 'package:geo_master/pages/flags_quiz_page.dart';
+import 'package:geo_master/pages/capitals_quiz_page.dart';
 import 'package:geo_master/services/country_service.dart';
 
-class FlagsQuizPageState extends State<FlagsQuizPage> {
+class CapitalsQuizPageState extends State<CapitalsQuizPage> {
   bool _loading = true;
   String? _error;
 
@@ -246,7 +246,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
           ),
           const SizedBox(height: 24),
 
-          // Flag image
+          // Country name
           Container(
             height: 180,
             decoration: BoxDecoration(
@@ -260,21 +260,14 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
                 ),
               ],
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Image.network(
-                _current.flagLink,
-                fit: BoxFit.contain,
-                loadingBuilder: (_, child, progress) {
-                  if (progress == null) return child;
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: colorScheme.primary,
-                    ),
-                  );
-                },
-                errorBuilder: (_, __, ___) => const Center(
-                  child: Text('🏳️', style: TextStyle(fontSize: 64)),
+            child: Center(
+              child: Text(
+                _current.nameIn(widget.language),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
@@ -328,7 +321,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
                           ),
                         ),
                         child: Text(
-                          country.nameIn(widget.language),
+                          country.capital.join(", "),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

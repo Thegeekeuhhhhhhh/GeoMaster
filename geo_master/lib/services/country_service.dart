@@ -9,10 +9,10 @@ class CountryService {
   static const _cacheTtl = Duration(days: 2);
   static const _tsKey = 'countries_cache_timestamp';
 
-  static List<Country>? _memory;
+  static List<Country>? memory;
 
   static Future<List<Country>> fetchAll() async {
-    if (_memory != null) return _memory!;
+    if (memory != null) return memory!;
 
     final prefs = await SharedPreferences.getInstance();
 
@@ -24,8 +24,8 @@ class CountryService {
       if (age < _cacheTtl) {
         final raw = prefs.getString(_cacheKey);
         if (raw != null) {
-          _memory = _parse(jsonDecode(raw) as List<dynamic>);
-          return _memory!;
+          memory = _parse(jsonDecode(raw) as List<dynamic>);
+          return memory!;
         }
       }
     }
@@ -44,8 +44,8 @@ class CountryService {
     await prefs.setString(_cacheKey, response.body);
     await prefs.setInt(_tsKey, DateTime.now().millisecondsSinceEpoch);
 
-    _memory = _parse(data);
-    return _memory!;
+    memory = _parse(data);
+    return memory!;
   }
 
   static List<Country> _parse(List<dynamic> data) {
@@ -57,7 +57,7 @@ class CountryService {
   }
 
   static Future<void> clearCache() async {
-    _memory = null;
+    memory = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_cacheKey);
     await prefs.remove(_tsKey);
