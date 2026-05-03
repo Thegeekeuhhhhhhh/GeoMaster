@@ -27,7 +27,7 @@ jobs:
 
       - name: Build web
         working-directory: ./geo_master
-        run: flutter build web --release
+        run: flutter build web --release --base-href "/geo_master/"
 
       - name: Upload web build
         uses: actions/upload-artifact@v4
