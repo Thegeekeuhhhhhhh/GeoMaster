@@ -294,7 +294,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
 
           LayoutBuilder(
             builder: (context, constraints) {
-              final itemHeight = 70.0;
+              final itemHeight = 60.0;
               final rows = (_choices.length / 2).ceil();
               final totalHeight = rows * itemHeight + (rows - 1) * 12;
 

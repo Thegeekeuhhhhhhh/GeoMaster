@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/models/country.dart';
+import 'package:geo_master/pages/capitals_quiz_page.dart';
 import 'package:geo_master/pages/flags_quiz_page.dart';
 import 'package:geo_master/services/country_service.dart';
 import 'package:geo_master/widgets/language_picker.dart';
@@ -146,6 +147,21 @@ class HomePage extends StatelessWidget {
                     label: l10n.capitalsTitle,
                     description: l10n.capitalsDesc,
                     accentColor: const Color(0xFF2E7D32),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            CapitalsQuizPage(language: currentLanguage),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+                  TopicCard(
+                    icon: '😈',
+                    label: l10n.quizTitle,
+                    description: l10n.quizQuestion,
+                    accentColor: const Color(0xFF000000),
                     comingSoon: true,
                     comingSoonLabel: l10n.soon,
                     onTap: () {},
