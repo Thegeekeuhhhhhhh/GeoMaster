@@ -35,7 +35,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
       _error = null;
     });
     try {
-      final all = await CountryService.fetchAll();
+      final all = CountryService.memory ?? [];
       setState(() {
         _allCountries = all;
         _loading = false;
