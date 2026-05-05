@@ -2,9 +2,9 @@ name: Flutter fine shyyyy
 
 on:
   push:
-    branches: [ "main", "dev", "ci_cd_development" ]
+    branches: [ "main", "dev", "ci_cd_development", "connect_with_supabase" ]
   pull_request:
-    branches: [ "main", "dev", "ci_cd_development" ]
+    branches: [ "main", "dev", "ci_cd_development", "connect_with_supabase" ]
 
 jobs:
   build-web:
@@ -16,6 +16,11 @@ jobs:
         with:
           flutter-version: '3.x'
           channel: 'stable'
+
+      - name: Create .env file
+        run: |
+          echo "PROJECT_URL=${{ secrets.SUPABASE_PROJECT_URL }}" >> .env
+          echo "PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" >> .env
 
       - name: Install dependencies
         working-directory: ./geo_master
