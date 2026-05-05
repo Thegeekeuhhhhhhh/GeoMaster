@@ -1,5 +1,4 @@
 import 'package:geo_master/enums/app_language.dart';
-import 'package:geo_master/models/idd.dart';
 
 class Country {
   final String flagLink;
@@ -10,7 +9,8 @@ class Country {
   final List<String> capital;
   final List<String> borders;
   final double area;
-  final IDD idd;
+  final String iddRoot;
+  final List<String> iddSuffixes;
   final Map<String, String> translations;
 
   Country({
@@ -22,7 +22,8 @@ class Country {
     required this.capital,
     required this.borders,
     required this.area,
-    required this.idd,
+    required this.iddRoot,
+    required this.iddSuffixes,
     required this.translations,
   });
 
@@ -48,7 +49,8 @@ class Country {
       capital: List<String>.from(json["capital"]),
       borders: List<String>.from(json["borders"]),
       area: json["area"] as double,
-      idd: IDD.fromJson(json["idd"]),
+      iddRoot: json["idd"]["root"] as String,
+      iddSuffixes: List<String>.from(json["idd"]["suffixes"]),
       translations: trans,
     );
   }
