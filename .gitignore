@@ -121,3 +121,5 @@ app.*.symbols
 # Just in case :)
 .env
 node_modules
+run.bat
+run.sh
