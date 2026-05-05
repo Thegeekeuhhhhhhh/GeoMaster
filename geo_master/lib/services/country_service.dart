@@ -1,7 +1,11 @@
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:geo_master/models/country.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CountryService {
   static const _baseUrl = 'https://restcountries.com/v3.1';
@@ -30,21 +34,26 @@ class CountryService {
       }
     }
 
-    final uri = Uri.parse(
-      '$_baseUrl/all?fields=area,borders,name,cca3,idd,capital,translations,flags,tld,unMember',
+    final data = await Supabase.instance.client
+        .from("countries_data")
+        .select("*")
+        .withConverter((list) {
+          return (list as List).map((json) {
+            try {
+              return Country.fromJson(json as Map<String, dynamic>);
+            } catch (e) {
+              throw Exception("Parse error: $e\nRow: $json");
+            }
+          }).toList();
+        });
+
+    await prefs.setString(
+      _cacheKey,
+      jsonEncode(data.map((elt) => elt.toJson()).toList()),
     );
-    final response = await http.get(uri);
-
-    if (response.statusCode != 200) {
-      throw Exception('Failed to load countries (HTTP ${response.statusCode})');
-    }
-
-    final List<dynamic> data = jsonDecode(response.body);
-
-    await prefs.setString(_cacheKey, response.body);
     await prefs.setInt(_tsKey, DateTime.now().millisecondsSinceEpoch);
 
-    memory = _parse(data);
+    memory = data;
     return memory!;
   }
 

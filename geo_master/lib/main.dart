@@ -2,8 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:geo_master/enums/app_language.dart';
 import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/pages/home_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    throw Exception('Error loading .env file: $e');
+  }
+
+  await Supabase.initialize(
+    url: dotenv.env['PROJECT_URL'] ?? 'PROJECT_NOT_FOUND',
+    anonKey: dotenv.env['PUBLISHABLE_KEY'] ?? 'KEY_NOT_FOUND',
+  );
   runApp(const GeoMasterApp());
 }
 
