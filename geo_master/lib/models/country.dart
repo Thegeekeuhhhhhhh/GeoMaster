@@ -1,5 +1,4 @@
 import 'package:geo_master/enums/app_language.dart';
-import 'package:geo_master/models/idd.dart';
 
 class Country {
   final String flagLink;
@@ -10,7 +9,8 @@ class Country {
   final List<String> capital;
   final List<String> borders;
   final double area;
-  final IDD idd;
+  final String iddRoot;
+  final List<String> iddSuffixes;
   final Map<String, String> translations;
 
   Country({
@@ -22,7 +22,8 @@ class Country {
     required this.capital,
     required this.borders,
     required this.area,
-    required this.idd,
+    required this.iddRoot,
+    required this.iddSuffixes,
     required this.translations,
   });
 
@@ -32,24 +33,32 @@ class Country {
   }
 
   factory Country.fromJson(Map<String, dynamic> json) {
-    final Map<String, String> trans = {};
-    final rawTrans = json['translations'] as Map<String, dynamic>? ?? {};
-    rawTrans.forEach((key, value) {
-      final common = (value as Map<String, dynamic>)['common'];
-      if (common != null) trans[key] = common as String;
-    });
-
     return Country(
-      flagLink: json["flags"]["png"] as String,
-      countryName: json["name"]["common"] as String,
-      internetExtensions: List<String>.from(json["tld"]),
-      cca3: (json["cca3"] as String).toUpperCase(),
-      unMember: json["unMember"] as bool,
-      capital: List<String>.from(json["capital"]),
-      borders: List<String>.from(json["borders"]),
-      area: json["area"] as double,
-      idd: IDD.fromJson(json["idd"]),
-      translations: trans,
+      flagLink: json['flagLink'] as String,
+      countryName: json['countryName'] as String,
+      internetExtensions: List<String>.from(json['internetExtensions']),
+      cca3: json['cca3'] as String,
+      unMember: json['unMember'] as bool,
+      capital: List<String>.from(json['capital']),
+      borders: List<String>.from(json['borders']),
+      area: json['area'] as double,
+      iddRoot: json['iddRoot'] as String,
+      iddSuffixes: List<String>.from(json['iddSuffixes']),
+      translations: Map<String, String>.from(json['translations']),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'flagLink': flagLink,
+    'countryName': countryName,
+    'internetExtensions': internetExtensions,
+    'cca3': cca3,
+    'unMember': unMember,
+    'capital': capital,
+    'borders': borders,
+    'area': area,
+    'iddRoot': iddRoot,
+    'iddSuffixes': iddSuffixes,
+    'translations': translations,
+  };
 }

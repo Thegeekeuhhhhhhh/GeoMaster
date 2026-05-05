@@ -2,8 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:geo_master/enums/app_language.dart';
 import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/pages/home_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Supabase.initialize(
+    url: const String.fromEnvironment('PROJECT_URL'),
+    anonKey: const String.fromEnvironment('PUBLISHABLE_KEY'),
+  );
+
   runApp(const GeoMasterApp());
 }
 
