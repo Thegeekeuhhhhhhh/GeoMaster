@@ -18,6 +18,7 @@ jobs:
           channel: 'stable'
 
       - name: Create .env file
+        working-directory: ./geo_master
         run: |
           echo "PROJECT_URL=${{ secrets.SUPABASE_PROJECT_URL }}" >> .env
           echo "PUBLISHABLE_KEY=${{ secrets.SUPABASE_PUBLISHABLE_KEY }}" >> .env
