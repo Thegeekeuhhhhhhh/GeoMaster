@@ -21,7 +21,7 @@ for (let i = 0; i < json.length; i++) {
         currencies: Object.keys(json[i]["currencies"]),
         languages: Object.keys(json[i]["languages"]),
         population: json[i]["population"],
-    }
+    };
 
     promises.push(() => supabase.from('countries_data').update(country).eq("cca3", json[i]["cca3"]).then(({data, error}) => {
         if (error) {
