@@ -33,7 +33,7 @@ for (let i = 0; i < json.length; i++) {
         iddRoot: json[i]["idd"]["root"],
         iddSuffixes: json[i]["idd"]["suffixes"],
         translations: filteredMap,
-    }
+    };
 
     countriesList.push(country);
 }
