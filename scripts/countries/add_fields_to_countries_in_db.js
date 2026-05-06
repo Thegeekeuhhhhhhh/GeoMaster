@@ -33,8 +33,6 @@ for (let i = 0; i < json.length; i++) {
     }));
 }
 
-console.log(promises.length);
-
 for (let i = 0; i < promises.length; i += BATCH_SIZE) {
     const batch = promises.slice(i, i + BATCH_SIZE).map(f => f());
     await Promise.all(batch);
