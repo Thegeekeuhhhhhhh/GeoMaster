@@ -15,6 +15,8 @@ class AppStrings {
   final String capitalsDesc;
   final String continentsTitle;
   final String continentsDesc;
+  final String usTitle;
+  final String usDescription;
 
   // Quiz
   final String quizTitle;
@@ -35,6 +37,7 @@ class AppStrings {
     required this.tagline,
     required this.welcomeTitle,
     required this.welcomeSubtitle,
+
     required this.topicsHeader,
     required this.flagsTitle,
     required this.flagsDesc,
@@ -42,6 +45,9 @@ class AppStrings {
     required this.capitalsDesc,
     required this.continentsTitle,
     required this.continentsDesc,
+    required this.usTitle,
+    required this.usDescription,
+
     required this.quizTitle,
     required this.quizQuestion,
     required this.score,
@@ -76,6 +82,7 @@ class AppStrings {
     tagline: 'Explore the world, one quiz at a time.',
     welcomeTitle: 'Welcome, Explorer!',
     welcomeSubtitle: 'Start a topic below to begin your journey.',
+
     topicsHeader: 'Topics',
     flagsTitle: 'Flags of the World',
     flagsDesc: 'Can you match the flag to its country?',
@@ -83,6 +90,9 @@ class AppStrings {
     capitalsDesc: 'Test your knowledge of capital cities.',
     continentsTitle: 'Continents & Oceans',
     continentsDesc: 'Learn the major landmasses and seas.',
+    usTitle: 'US States',
+    usDescription: 'Find every states of the USA',
+
     quizTitle: 'Flags of the World',
     quizQuestion: 'Which country does this flag belong to?',
     score: 'Score',
@@ -102,6 +112,7 @@ class AppStrings {
     tagline: 'Explore le monde, un quiz à la fois.',
     welcomeTitle: 'Bienvenue, Explorateur !',
     welcomeSubtitle: 'Commence un sujet ci-dessous pour partir à l\'aventure.',
+
     topicsHeader: 'Sujets',
     flagsTitle: 'Drapeaux du Monde',
     flagsDesc: 'Sauras-tu associer le drapeau à son pays ?',
@@ -109,6 +120,9 @@ class AppStrings {
     capitalsDesc: 'Teste tes connaissances sur les capitales.',
     continentsTitle: 'Continents & Océans',
     continentsDesc: 'Apprends les grandes terres et les mers.',
+    usTitle: 'TODO',
+    usDescription: 'TODO',
+
     quizTitle: 'Drapeaux du Monde',
     quizQuestion: 'À quel pays appartient ce drapeau ?',
     score: 'Score',
@@ -128,6 +142,7 @@ class AppStrings {
     tagline: 'Explora el mundo, un quiz a la vez.',
     welcomeTitle: '¡Bienvenido, Explorador!',
     welcomeSubtitle: 'Empieza un tema abajo para comenzar tu viaje.',
+
     topicsHeader: 'Temas',
     flagsTitle: 'Banderas del Mundo',
     flagsDesc: '¿Puedes asociar la bandera con su país?',
@@ -135,6 +150,9 @@ class AppStrings {
     capitalsDesc: 'Pon a prueba tu conocimiento de capitales.',
     continentsTitle: 'Continentes y Océanos',
     continentsDesc: 'Aprende las grandes masas terrestres y mares.',
+    usTitle: 'TODO',
+    usDescription: 'TODO',
+
     quizTitle: 'Banderas del Mundo',
     quizQuestion: '¿A qué país pertenece esta bandera?',
     score: 'Puntuación',
@@ -154,6 +172,7 @@ class AppStrings {
     tagline: 'Erkunde die Welt, ein Quiz nach dem anderen.',
     welcomeTitle: 'Willkommen, Entdecker!',
     welcomeSubtitle: 'Wähle unten ein Thema, um deine Reise zu beginnen.',
+
     topicsHeader: 'Themen',
     flagsTitle: 'Flaggen der Welt',
     flagsDesc: 'Kannst du die Flagge dem Land zuordnen?',
@@ -161,6 +180,9 @@ class AppStrings {
     capitalsDesc: 'Teste dein Wissen über Hauptstädte.',
     continentsTitle: 'Kontinente & Ozeane',
     continentsDesc: 'Lerne die großen Landmassen und Meere.',
+    usTitle: 'TODO',
+    usDescription: 'TODO',
+
     quizTitle: 'Flaggen der Welt',
     quizQuestion: 'Zu welchem Land gehört diese Flagge?',
     score: 'Punkte',
@@ -180,6 +202,7 @@ class AppStrings {
     tagline: 'Explora o mundo, um quiz de cada vez.',
     welcomeTitle: 'Bem-vindo, Explorador!',
     welcomeSubtitle: 'Começa um tema abaixo para iniciar a tua jornada.',
+
     topicsHeader: 'Tópicos',
     flagsTitle: 'Bandeiras do Mundo',
     flagsDesc: 'Consegues associar a bandeira ao seu país?',
@@ -187,6 +210,9 @@ class AppStrings {
     capitalsDesc: 'Testa os teus conhecimentos sobre capitais.',
     continentsTitle: 'Continentes e Oceanos',
     continentsDesc: 'Aprende as grandes massas terrestres e mares.',
+    usTitle: 'TODO',
+    usDescription: 'TODO',
+
     quizTitle: 'Bandeiras do Mundo',
     quizQuestion: 'A que país pertence esta bandeira?',
     score: 'Pontuação',

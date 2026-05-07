@@ -29,7 +29,7 @@ class CapitalsQuizPageState extends State<CapitalsQuizPage> {
     _loadCountries();
   }
 
-  Future<void> _loadCountries() async {
+  void _loadCountries() {
     setState(() {
       _loading = true;
       _error = null;
@@ -231,7 +231,7 @@ class CapitalsQuizPageState extends State<CapitalsQuizPage> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor: colorScheme.surfaceVariant,
+              backgroundColor: colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation(colorScheme.primary),
             ),
           ),
