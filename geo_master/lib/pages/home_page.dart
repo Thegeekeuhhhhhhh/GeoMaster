@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geo_master/l10n/app_strings.dart';
-import 'package:geo_master/models/country.dart';
 import 'package:geo_master/pages/capitals_quiz_page.dart';
 import 'package:geo_master/pages/flags_quiz_page.dart';
+import 'package:geo_master/pages/us_states_quiz_page.dart';
 import 'package:geo_master/services/country_service.dart';
+import 'package:geo_master/services/us_states_service.dart';
 import 'package:geo_master/widgets/language_picker.dart';
 import 'package:geo_master/widgets/topic_card.dart';
 import '../enums/app_language.dart';
@@ -27,7 +28,10 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: CountryService.fetchAll(),
+      future: Future.wait([
+        CountryService.fetchAll(),
+        USStatesService.fetchAll(),
+      ]),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -152,6 +156,21 @@ class HomePage extends StatelessWidget {
                       MaterialPageRoute(
                         builder: (_) =>
                             CapitalsQuizPage(language: currentLanguage),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 14),
+                  TopicCard(
+                    icon: '🇺🇸',
+                    label: l10n.usTitle,
+                    description: l10n.usDescription,
+                    accentColor: const Color.fromARGB(255, 165, 6, 32),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            USStatesQuizPage(language: currentLanguage),
                       ),
                     ),
                   ),

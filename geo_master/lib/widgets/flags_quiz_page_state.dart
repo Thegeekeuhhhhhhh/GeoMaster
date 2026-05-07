@@ -29,7 +29,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
     _loadCountries();
   }
 
-  Future<void> _loadCountries() async {
+  void _loadCountries() {
     setState(() {
       _loading = true;
       _error = null;
@@ -231,7 +231,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor: colorScheme.surfaceVariant,
+              backgroundColor: colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation(colorScheme.primary),
             ),
           ),
@@ -273,7 +273,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
                     ),
                   );
                 },
-                errorBuilder: (_, __, ___) => const Center(
+                errorBuilder: (_, _, _) => const Center(
                   child: Text('🏳️', style: TextStyle(fontSize: 64)),
                 ),
               ),
