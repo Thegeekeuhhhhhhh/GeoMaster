@@ -102,7 +102,9 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
   }
 
   Future<void> _onTextChanged(String value) async {
-    if (_quizFinished) return;
+    if (_quizFinished) {
+      return;
+    }
 
     final normalized = USState.normalize(value);
 
@@ -139,7 +141,9 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
   }
 
   String _buildPulsingSvg() {
-    if (_svgRaw == null) return '';
+    if (_svgRaw == null) {
+      return '';
+    }
     var svg = _svgRaw!;
 
     for (final state in _usStates) {

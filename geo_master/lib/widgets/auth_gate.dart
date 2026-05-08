@@ -9,7 +9,9 @@ Future<void> saveScoreWithAuthGate({
   required int score,
   required int total,
 }) async {
-  if (!context.mounted) return;
+  if (!context.mounted) {
+    return;
+  }
 
   final cs = Theme.of(context).colorScheme;
   final ratio = score / total;
@@ -66,7 +68,9 @@ Future<void> saveScoreWithAuthGate({
     ),
   );
 
-  if (!context.mounted) return;
+  if (!context.mounted) {
+    return;
+  }
 
   if (AuthService.isLoggedIn) {
     await ScoreService.saveScore(

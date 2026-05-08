@@ -72,11 +72,15 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
   }
 
   void _selectAnswer(int index) {
-    if (_answered) return;
+    if (_answered) {
+      return;
+    }
     setState(() {
       _selectedAnswer = index;
       _answered = true;
-      if (_choices[index].cca3 == _current.cca3) _score++;
+      if (_choices[index].cca3 == _current.cca3) {
+        _score++;
+      }
     });
   }
 
@@ -99,17 +103,27 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
   }
 
   Color _choiceColor(int index, ColorScheme colorScheme) {
-    if (!_answered) return colorScheme.surface;
+    if (!_answered) {
+      return colorScheme.surface;
+    }
     if (_choices[index].cca3 == _current.cca3)
       return Colors.green.withOpacity(0.15);
-    if (index == _selectedAnswer) return Colors.red.withOpacity(0.1);
+    if (index == _selectedAnswer) {
+      return Colors.red.withOpacity(0.1);
+    }
     return colorScheme.surface;
   }
 
   Color _choiceBorderColor(int index, ColorScheme colorScheme) {
-    if (!_answered) return colorScheme.outlineVariant;
-    if (_choices[index].cca3 == _current.cca3) return Colors.green.shade700;
-    if (index == _selectedAnswer) return Colors.red.shade700;
+    if (!_answered) {
+      return colorScheme.outlineVariant;
+    }
+    if (_choices[index].cca3 == _current.cca3) {
+      return Colors.green.shade700;
+    }
+    if (index == _selectedAnswer) {
+      return Colors.red.shade700;
+    }
     return colorScheme.outlineVariant;
   }
 
@@ -238,7 +252,9 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
                 _current.flagLink,
                 fit: BoxFit.contain,
                 loadingBuilder: (_, child, progress) {
-                  if (progress == null) return child;
+                  if (progress == null) {
+                    return child;
+                  }
                   return Center(
                     child: CircularProgressIndicator(
                       color: colorScheme.primary,

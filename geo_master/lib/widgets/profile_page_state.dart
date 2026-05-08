@@ -33,7 +33,9 @@ class ProfilePageState extends State<ProfilePage> {
 
   Future<void> _logout() async {
     await AuthService.signOut();
-    if (mounted) Navigator.pop(context);
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -131,7 +133,7 @@ class ProfilePageState extends State<ProfilePage> {
 
                   if (_bestScores.isEmpty)
                     const Text(
-                      'No scores yet — complete a quiz!',
+                      'No scores yet, complete a quiz first !',
                       style: TextStyle(color: Color(0xFF888888)),
                     )
                   else

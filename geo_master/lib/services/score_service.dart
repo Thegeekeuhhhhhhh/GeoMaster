@@ -53,7 +53,9 @@ class ScoreService {
     required int score,
     required int total,
   }) async {
-    if (!AuthService.isLoggedIn) return;
+    if (!AuthService.isLoggedIn) {
+      return;
+    }
     final userId = AuthService.currentUser!.id;
 
     await _client.from('score_history').insert({
@@ -105,7 +107,9 @@ class ScoreService {
   }
 
   static Future<List<BestScore>> fetchBestScores() async {
-    if (!AuthService.isLoggedIn) return [];
+    if (!AuthService.isLoggedIn) {
+      return [];
+    }
 
     final data = await _client
         .from('best_scores')
@@ -118,7 +122,9 @@ class ScoreService {
   }
 
   static Future<List<ScoreEntry>> fetchHistory({String? quizType}) async {
-    if (!AuthService.isLoggedIn) return [];
+    if (!AuthService.isLoggedIn) {
+      return [];
+    }
 
     var query = _client
         .from('score_history')

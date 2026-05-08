@@ -28,7 +28,9 @@ class Country {
   });
 
   String nameIn(AppLanguage lang) {
-    if (lang == AppLanguage.english) return countryName;
+    if (lang == AppLanguage.english) {
+      return countryName;
+    }
     return translations[lang.translationKey] ?? countryName;
   }
 

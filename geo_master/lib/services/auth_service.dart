@@ -11,7 +11,9 @@ class AuthService {
 
   static Future<void> signUpWithEmail(String email, String password) async {
     final res = await _client.auth.signUp(email: email, password: password);
-    if (res.user == null) throw Exception('Sign up failed — check your email.');
+    if (res.user == null) {
+      throw Exception('Sign up failed check email.');
+    }
   }
 
   static Future<void> signInWithEmail(String email, String password) async {
