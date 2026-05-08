@@ -5,6 +5,7 @@ import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/models/country.dart';
 import 'package:geo_master/pages/flags_quiz_page.dart';
 import 'package:geo_master/services/country_service.dart';
+import 'package:geo_master/widgets/auth_gate.dart';
 
 class FlagsQuizPageState extends State<FlagsQuizPage> {
   bool _loading = true;
@@ -79,7 +80,7 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
     });
   }
 
-  void _next() {
+  Future<void> _next() async {
     if (_currentIndex < _quizPool.length - 1) {
       setState(() {
         _currentIndex++;
@@ -88,42 +89,13 @@ class FlagsQuizPageState extends State<FlagsQuizPage> {
         _buildChoices();
       });
     } else {
-      _showResult();
+      await saveScoreWithAuthGate(
+        context: context,
+        quizType: 'flags',
+        score: _score,
+        total: _quizPool.length,
+      );
     }
-  }
-
-  void _showResult() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(
-          l10n.doneTitle,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          '${l10n.scored} $_score ${l10n.outOf} ${_quizPool.length}.',
-          style: const TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: Text(l10n.backHome),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _startNewGame();
-            },
-            child: Text(l10n.playAgain),
-          ),
-        ],
-      ),
-    );
   }
 
   Color _choiceColor(int index, ColorScheme colorScheme) {

@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geo_master/models/us_state.dart';
 import 'package:geo_master/pages/us_states_quiz_page.dart';
 import 'package:geo_master/services/us_states_service.dart';
+import 'package:geo_master/widgets/auth_gate.dart';
 
 class USStatesQuizPageState extends State<USStatesQuizPage>
     with SingleTickerProviderStateMixin {
@@ -100,7 +101,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
     return null;
   }
 
-  void _onTextChanged(String value) {
+  Future<void> _onTextChanged(String value) async {
     if (_quizFinished) return;
 
     final normalized = USState.normalize(value);
@@ -126,51 +127,15 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
       });
 
       if (_correctCodes.length == _usStates.length) {
+        await saveScoreWithAuthGate(
+          context: context,
+          quizType: 'states',
+          score: _score,
+          total: _usStates.length,
+        );
         setState(() => _quizFinished = true);
-        _showResult();
       }
     }
-  }
-
-  void _showResult() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'Quiz Complete! 🎉',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text(
-          'You named $_score out of ${_usStates.length} states.',
-          style: const TextStyle(fontSize: 16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-            child: const Text('Back to Home'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                _shuffled.shuffle(_random);
-                _score = 0;
-                _quizFinished = false;
-                _correctCodes.clear();
-                _textController.clear();
-              });
-              _focusNode.requestFocus();
-            },
-            child: const Text('Play Again'),
-          ),
-        ],
-      ),
-    );
   }
 
   String _buildPulsingSvg() {
@@ -242,9 +207,14 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
             child: TextButton(
               onPressed: _quizFinished
                   ? null
-                  : () {
+                  : () async {
+                      await saveScoreWithAuthGate(
+                        context: context,
+                        quizType: 'states',
+                        score: _score,
+                        total: _usStates.length,
+                      );
                       setState(() => _quizFinished = true);
-                      _showResult();
                     },
               child: const Text(
                 'Give Up',
