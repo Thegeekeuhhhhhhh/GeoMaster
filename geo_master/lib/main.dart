@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geo_master/enums/app_language.dart';
 import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/pages/home_page.dart';
+import 'package:geo_master/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -25,6 +28,21 @@ class GeoMasterApp extends StatefulWidget {
 class _GeoMasterAppState extends State<GeoMasterApp> {
   AppLanguage _language = AppLanguage.english;
   bool _theme = true;
+  late final StreamSubscription<AuthState> _authSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _authSubscription = AuthService.authStateStream.listen((_) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription.cancel();
+    super.dispose();
+  }
 
   void _setLanguage(AppLanguage lang) => setState(() => _language = lang);
   void _setTheme(bool theme) => setState(() => _theme = theme);

@@ -11,7 +11,9 @@ class USStatesService {
   static List<USState>? memory;
 
   static Future<List<USState>> fetchAll() async {
-    if (memory != null) return memory!;
+    if (memory != null) {
+      return memory!;
+    }
 
     final prefs = await SharedPreferences.getInstance();
 

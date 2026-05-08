@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:geo_master/l10n/app_strings.dart';
+import 'package:geo_master/pages/auth_page.dart';
 import 'package:geo_master/pages/capitals_quiz_page.dart';
 import 'package:geo_master/pages/flags_quiz_page.dart';
+import 'package:geo_master/pages/profile_page.dart';
 import 'package:geo_master/pages/us_states_quiz_page.dart';
+import 'package:geo_master/services/auth_service.dart';
 import 'package:geo_master/services/country_service.dart';
 import 'package:geo_master/services/us_states_service.dart';
 import 'package:geo_master/widgets/language_picker.dart';
 import 'package:geo_master/widgets/topic_card.dart';
 import '../enums/app_language.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final AppLanguage currentLanguage;
   final ValueChanged<AppLanguage> onLanguageChanged;
   final bool currentTheme;
@@ -26,12 +29,25 @@ class HomePage extends StatelessWidget {
   });
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final Future<void> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _future = Future.wait([
+      CountryService.fetchAll(),
+      USStatesService.fetchAll(),
+    ]);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([
-        CountryService.fetchAll(),
-        USStatesService.fetchAll(),
-      ]),
+      future: _future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -51,7 +67,7 @@ class HomePage extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
                         'GeoMaster',
@@ -62,18 +78,58 @@ class HomePage extends StatelessWidget {
                           letterSpacing: -1,
                         ),
                       ),
-                      Switch(
-                        value: currentTheme,
-                        onChanged: (val) => onThemeChanged(val),
-                      ),
-                      LanguagePicker(
-                        current: currentLanguage,
-                        onChanged: onLanguageChanged,
+                      Row(
+                        children: [
+                          Switch(
+                            value: widget.currentTheme,
+                            onChanged: widget.onThemeChanged,
+                            thumbIcon: WidgetStateProperty.resolveWith((
+                              states,
+                            ) {
+                              if (states.contains(WidgetState.selected)) {
+                                return const Icon(
+                                  Icons.light_mode,
+                                  size: 16,
+                                  color: Colors.orange,
+                                );
+                              }
+                              return const Icon(
+                                Icons.dark_mode,
+                                size: 16,
+                                color: Colors.indigo,
+                              );
+                            }),
+                          ),
+                          LanguagePicker(
+                            current: widget.currentLanguage,
+                            onChanged: widget.onLanguageChanged,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              AuthService.isLoggedIn
+                                  ? Icons.person
+                                  : Icons.person_outline,
+                              color: colorScheme.primary,
+                            ),
+                            onPressed: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => AuthService.isLoggedIn
+                                      ? const ProfilePage()
+                                      : const AuthPage(),
+                                ),
+                              );
+                              setState(() {});
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
+
                   Text(
-                    l10n.tagline,
+                    widget.l10n.tagline,
                     style: TextStyle(
                       fontSize: 15,
                       color: colorScheme.onSurface.withOpacity(0.55),
@@ -82,7 +138,6 @@ class HomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 28),
 
-                  // Welcome banner
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -98,7 +153,7 @@ class HomePage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l10n.welcomeTitle,
+                                widget.l10n.welcomeTitle,
                                 style: TextStyle(
                                   color: colorScheme.onPrimary,
                                   fontSize: 17,
@@ -107,7 +162,7 @@ class HomePage extends StatelessWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                l10n.welcomeSubtitle,
+                                widget.l10n.welcomeSubtitle,
                                 style: TextStyle(
                                   color: colorScheme.onPrimary.withOpacity(0.7),
                                   fontSize: 13,
@@ -122,7 +177,7 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 36),
 
                   Text(
-                    l10n.topicsHeader,
+                    widget.l10n.topicsHeader,
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -134,55 +189,53 @@ class HomePage extends StatelessWidget {
 
                   TopicCard(
                     icon: '🏳️',
-                    label: l10n.flagsTitle,
-                    description: l10n.flagsDesc,
+                    label: widget.l10n.flagsTitle,
+                    description: widget.l10n.flagsDesc,
                     accentColor: const Color(0xFF1A73E8),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            FlagsQuizPage(language: currentLanguage),
+                            FlagsQuizPage(language: widget.currentLanguage),
                       ),
                     ),
                   ),
                   const SizedBox(height: 14),
                   TopicCard(
                     icon: '🗺️',
-                    label: l10n.capitalsTitle,
-                    description: l10n.capitalsDesc,
+                    label: widget.l10n.capitalsTitle,
+                    description: widget.l10n.capitalsDesc,
                     accentColor: const Color(0xFF2E7D32),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            CapitalsQuizPage(language: currentLanguage),
+                            CapitalsQuizPage(language: widget.currentLanguage),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 14),
                   TopicCard(
                     icon: '🇺🇸',
-                    label: l10n.usTitle,
-                    description: l10n.usDescription,
+                    label: widget.l10n.usTitle,
+                    description: widget.l10n.usDescription,
                     accentColor: const Color.fromARGB(255, 165, 6, 32),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            USStatesQuizPage(language: currentLanguage),
+                            USStatesQuizPage(language: widget.currentLanguage),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 14),
                   TopicCard(
                     icon: '😈',
-                    label: l10n.quizTitle,
-                    description: l10n.quizQuestion,
+                    label: widget.l10n.quizTitle,
+                    description: widget.l10n.quizQuestion,
                     accentColor: const Color(0xFF000000),
                     comingSoon: true,
-                    comingSoonLabel: l10n.soon,
+                    comingSoonLabel: widget.l10n.soon,
                     onTap: () {},
                   ),
                 ],

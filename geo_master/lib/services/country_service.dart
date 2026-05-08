@@ -11,7 +11,9 @@ class CountryService {
   static List<Country>? memory;
 
   static Future<List<Country>> fetchAll() async {
-    if (memory != null) return memory!;
+    if (memory != null) {
+      return memory!;
+    }
 
     final prefs = await SharedPreferences.getInstance();
 
