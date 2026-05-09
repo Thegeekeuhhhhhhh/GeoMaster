@@ -13,6 +13,7 @@ class Country {
   final List<String> iddSuffixes;
   final Map<String, String> translations;
   final String trimmedName;
+  final String cca2;
 
   Country({
     required this.flagLink,
@@ -27,6 +28,7 @@ class Country {
     required this.iddSuffixes,
     required this.translations,
     required this.trimmedName,
+    required this.cca2,
   });
 
   String nameIn(AppLanguage lang) {
@@ -50,6 +52,7 @@ class Country {
       iddSuffixes: List<String>.from(json['iddSuffixes']),
       translations: Map<String, String>.from(json['translations']),
       trimmedName: Country.normalize(json['countryName'] as String),
+      cca2: json['cca2'] as String,
     );
   }
 
@@ -65,6 +68,7 @@ class Country {
     'iddRoot': iddRoot,
     'iddSuffixes': iddSuffixes,
     'translations': translations,
+    'cca2': cca2,
   };
 
   static String normalize(String input) {

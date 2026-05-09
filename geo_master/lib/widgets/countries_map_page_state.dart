@@ -94,7 +94,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
   Country? get _currentTarget {
     for (final state in _shuffled) {
-      if (!_correctCodes.contains(state.cca3.toLowerCase())) {
+      if (!_correctCodes.contains(state.cca2.toLowerCase())) {
         return state;
       }
     }
@@ -111,7 +111,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
     final match = _countries.firstWhere(
       (s) =>
           s.trimmedName == normalized &&
-          !_correctCodes.contains(s.cca3.toLowerCase()),
+          !_correctCodes.contains(s.cca2.toLowerCase()),
       orElse: () => Country(
         flagLink: '',
         countryName: '',
@@ -125,13 +125,14 @@ class CountriesMapPageState extends State<CountriesMapPage>
         iddSuffixes: [],
         translations: <String, String>{},
         trimmedName: '',
+        cca2: '',
       ),
     );
 
-    if (match.cca3.isNotEmpty) {
+    if (match.cca2.isNotEmpty) {
       setState(() {
         _score++;
-        _correctCodes.add(match.cca3.toLowerCase());
+        _correctCodes.add(match.cca2.toLowerCase());
         _textController.clear();
       });
 
@@ -154,7 +155,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
     var svg = _svgRaw!;
 
     for (final state in _countries) {
-      final code = state.cca3.toLowerCase();
+      final code = state.cca2.toLowerCase();
       final isCorrect = _correctCodes.contains(code);
 
       String fill;
