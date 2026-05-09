@@ -12,6 +12,8 @@ class Country {
   final String iddRoot;
   final List<String> iddSuffixes;
   final Map<String, String> translations;
+  final String trimmedName;
+  final String cca2;
 
   Country({
     required this.flagLink,
@@ -25,6 +27,8 @@ class Country {
     required this.iddRoot,
     required this.iddSuffixes,
     required this.translations,
+    required this.trimmedName,
+    required this.cca2,
   });
 
   String nameIn(AppLanguage lang) {
@@ -47,6 +51,8 @@ class Country {
       iddRoot: json['iddRoot'] as String,
       iddSuffixes: List<String>.from(json['iddSuffixes']),
       translations: Map<String, String>.from(json['translations']),
+      trimmedName: Country.normalize(json['countryName'] as String),
+      cca2: json['cca2'] as String,
     );
   }
 
@@ -62,5 +68,18 @@ class Country {
     'iddRoot': iddRoot,
     'iddSuffixes': iddSuffixes,
     'translations': translations,
+    'cca2': cca2,
   };
+
+  static String normalize(String input) {
+    const accents = 'àáâãäåèéêëìíîïòóôõöùúûüýÿñç';
+    const replacements = 'aaaaaaeeeeiiiiooooouuuuyync';
+    var result = input.toLowerCase();
+
+    for (var i = 0; i < accents.length; i++) {
+      result = result.replaceAll(accents[i], replacements[i]);
+    }
+
+    return result.replaceAll(RegExp(r'[^a-z]'), '');
+  }
 }

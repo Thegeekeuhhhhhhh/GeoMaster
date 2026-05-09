@@ -3,16 +3,16 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:geo_master/models/us_state.dart';
-import 'package:geo_master/pages/us_states_quiz_page.dart';
-import 'package:geo_master/services/us_states_service.dart';
+import 'package:geo_master/models/country.dart';
+import 'package:geo_master/pages/countries_map_page.dart';
+import 'package:geo_master/services/country_service.dart';
 import 'package:geo_master/widgets/auth_gate.dart';
 
-class USStatesQuizPageState extends State<USStatesQuizPage>
+class CountriesMapPageState extends State<CountriesMapPage>
     with SingleTickerProviderStateMixin {
-  late List<USState> _shuffled;
+  late List<Country> _shuffled;
   int _score = 0;
-  List<USState> _usStates = [];
+  List<Country> _countries = [];
 
   final Set<String> _correctCodes = {};
 
@@ -27,10 +27,12 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
 
   bool _quizFinished = false;
 
+  var _iterationInitialization = true;
+
   @override
   void initState() {
     super.initState();
-    _usStates = USStatesService.memory ?? [];
+    _countries = CountryService.memory ?? [];
 
     _pulseController = AnimationController(
       vsync: this,
@@ -41,7 +43,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    _shuffled = List.from(_usStates)..shuffle(_random);
+    _shuffled = List.from(_countries)..shuffle(_random);
     _loadSvg();
   }
 
@@ -54,7 +56,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
   }
 
   Future<void> _loadSvg() async {
-    var raw = await rootBundle.loadString('assets/us_map.svg');
+    var raw = await rootBundle.loadString('assets/world_map.svg');
     raw = _inlineCssToAttributes(raw);
     setState(() => _svgRaw = raw);
   }
@@ -92,9 +94,9 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
     return svg;
   }
 
-  USState? get _currentTarget {
+  Country? get _currentTarget {
     for (final state in _shuffled) {
-      if (!_correctCodes.contains(state.id.toLowerCase())) {
+      if (!_correctCodes.contains(state.cca2.toLowerCase())) {
         return state;
       }
     }
@@ -106,34 +108,42 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
       return;
     }
 
-    final normalized = USState.normalize(value);
+    final normalized = Country.normalize(value);
 
-    final match = _usStates.firstWhere(
+    final match = _countries.firstWhere(
       (s) =>
           s.trimmedName == normalized &&
-          !_correctCodes.contains(s.id.toLowerCase()),
-      orElse: () => USState(
-        id: '',
-        name: '',
-        capital: '',
-        population: 0,
+          !_correctCodes.contains(s.cca2.toLowerCase()),
+      orElse: () => Country(
+        flagLink: '',
+        countryName: '',
+        internetExtensions: [],
+        cca3: '',
+        unMember: false,
+        capital: [],
+        borders: [],
+        area: 0,
+        iddRoot: '',
+        iddSuffixes: [],
+        translations: <String, String>{},
         trimmedName: '',
+        cca2: '',
       ),
     );
 
-    if (match.id.isNotEmpty) {
+    if (match.cca2.isNotEmpty) {
       setState(() {
         _score++;
-        _correctCodes.add(match.id.toLowerCase());
+        _correctCodes.add(match.cca2.toLowerCase());
         _textController.clear();
       });
 
-      if (_correctCodes.length == _usStates.length) {
+      if (_correctCodes.length == _countries.length) {
         await saveScoreWithAuthGate(
           context: context,
           quizType: 'states',
           score: _score,
-          total: _usStates.length,
+          total: _countries.length,
         );
         setState(() => _quizFinished = true);
       }
@@ -146,41 +156,35 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
     }
     var svg = _svgRaw!;
 
-    for (final state in _usStates) {
-      final code = state.id.toLowerCase();
-      final isCorrect = _correctCodes.contains(code);
+    if (_iterationInitialization) {
+      for (final state in _countries) {
+        final code = state.cca2.toUpperCase();
+        final isCorrect = _correctCodes.contains(state.cca2.toLowerCase());
 
-      String fill;
-      String extra = '';
+        String fill;
 
-      // Exception for washington D.C.
-      if (code == 'dc') {
-        if (isCorrect) {
-          fill = '#198A42';
-        } else {
-          fill = '#000000';
-        }
-        svg = svg.replaceFirst(
-          'fill="#000000" class="$code"',
-          'fill="$fill" class="$code"$extra',
-        );
-        svg = svg.replaceFirst(
-          '<circle class="state borders dccircle dc"',
-          '<circle class="state borders dccircle dc" fill="$fill"',
-        );
-        svg = svg.replaceFirst(
-          '<circle class="state borders dccircle dc" fill="#000000"',
-          '<circle class="state borders dccircle dc" fill="$fill"',
-        );
-      } else {
         if (isCorrect) {
           fill = '#22c55e';
         } else {
           fill = '#D0D0D0';
         }
+
         svg = svg.replaceFirst(
-          'fill="#D0D0D0" class="$code"',
-          'fill="$fill" class="$code"$extra',
+          'id="$code" fill="#D0D0D0"',
+          'id="$code" fill="$fill"',
+        );
+        svg = svg.replaceFirst('id="$code" />', 'id="$code" fill="$fill" />');
+      }
+
+      _svgRaw = svg;
+      _iterationInitialization = false;
+    } else {
+      for (final state in _correctCodes.toList()) {
+        final code = state.toUpperCase();
+
+        svg = svg.replaceFirst(
+          'id="$code" fill="#D0D0D0"',
+          'id="$code" fill="#22c55e"',
         );
       }
     }
@@ -197,7 +201,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
   @override
   Widget build(BuildContext context) {
     final progress =
-        _correctCodes.length / (_usStates.isEmpty ? 1 : _usStates.length);
+        _correctCodes.length / (_countries.isEmpty ? 1 : _countries.length);
     final currentTarget = _currentTarget;
 
     return Scaffold(
@@ -210,7 +214,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'US States',
+          'Countries of the world',
           style: TextStyle(
             color: Color(0xFF1A237E),
             fontWeight: FontWeight.bold,
@@ -221,7 +225,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
             padding: const EdgeInsets.only(right: 16),
             child: Center(
               child: Text(
-                '$_score / ${_usStates.length}',
+                '$_score / ${_countries.length}',
                 style: const TextStyle(color: Color(0xFF555555), fontSize: 14),
               ),
             ),
@@ -236,7 +240,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
                         context: context,
                         quizType: 'states',
                         score: _score,
-                        total: _usStates.length,
+                        total: _countries.length,
                       );
                       setState(() => _quizFinished = true);
                     },
@@ -344,7 +348,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        'Type the name of any US state',
+                        'Type the name of any country',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
@@ -361,7 +365,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
                   enabled: !_quizFinished,
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
-                    hintText: 'e.g. California',
+                    hintText: 'e.g. France',
                     filled: true,
                     fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(
