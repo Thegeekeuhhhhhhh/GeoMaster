@@ -27,6 +27,8 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
   bool _quizFinished = false;
 
+  var _iterationInitialization = true;
+
   @override
   void initState() {
     super.initState();
@@ -154,41 +156,35 @@ class CountriesMapPageState extends State<CountriesMapPage>
     }
     var svg = _svgRaw!;
 
-    for (final state in _countries) {
-      final code = state.cca2.toLowerCase();
-      final isCorrect = _correctCodes.contains(code);
+    if (_iterationInitialization) {
+      for (final state in _countries) {
+        final code = state.cca2.toUpperCase();
+        final isCorrect = _correctCodes.contains(state.cca2.toLowerCase());
 
-      String fill;
-      String extra = '';
+        String fill;
 
-      // Exception for washington D.C.
-      if (code == 'dc') {
-        if (isCorrect) {
-          fill = '#198A42';
-        } else {
-          fill = '#000000';
-        }
-        svg = svg.replaceFirst(
-          'fill="#000000" class="$code"',
-          'fill="$fill" class="$code"$extra',
-        );
-        svg = svg.replaceFirst(
-          '<circle class="state borders dccircle dc"',
-          '<circle class="state borders dccircle dc" fill="$fill"',
-        );
-        svg = svg.replaceFirst(
-          '<circle class="state borders dccircle dc" fill="#000000"',
-          '<circle class="state borders dccircle dc" fill="$fill"',
-        );
-      } else {
         if (isCorrect) {
           fill = '#22c55e';
         } else {
           fill = '#D0D0D0';
         }
+
         svg = svg.replaceFirst(
-          'fill="#D0D0D0" class="$code"',
-          'fill="$fill" class="$code"$extra',
+          'id="$code" fill="#D0D0D0"',
+          'id="$code" fill="$fill"',
+        );
+        svg = svg.replaceFirst('id="$code" />', 'id="$code" fill="$fill" />');
+      }
+
+      _svgRaw = svg;
+      _iterationInitialization = false;
+    } else {
+      for (final state in _correctCodes.toList()) {
+        final code = state.toUpperCase();
+
+        svg = svg.replaceFirst(
+          'id="$code" fill="#D0D0D0"',
+          'id="$code" fill="#22c55e"',
         );
       }
     }
