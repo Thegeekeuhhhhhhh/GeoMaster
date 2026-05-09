@@ -153,16 +153,36 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
       String fill;
       String extra = '';
 
-      if (isCorrect) {
-        fill = '#22c55e';
+      // Exception for washington D.C.
+      if (code == 'dc') {
+        if (isCorrect) {
+          fill = '#198A42';
+        } else {
+          fill = '#000000';
+        }
+        svg = svg.replaceFirst(
+          'fill="#000000" class="$code"',
+          'fill="$fill" class="$code"$extra',
+        );
+        svg = svg.replaceFirst(
+          '<circle class="state borders dccircle dc"',
+          '<circle class="state borders dccircle dc" fill="$fill"',
+        );
+        svg = svg.replaceFirst(
+          '<circle class="state borders dccircle dc" fill="#000000"',
+          '<circle class="state borders dccircle dc" fill="$fill"',
+        );
       } else {
-        fill = '#D0D0D0';
+        if (isCorrect) {
+          fill = '#22c55e';
+        } else {
+          fill = '#D0D0D0';
+        }
+        svg = svg.replaceFirst(
+          'fill="#D0D0D0" class="$code"',
+          'fill="$fill" class="$code"$extra',
+        );
       }
-
-      svg = svg.replaceFirst(
-        'fill="#D0D0D0" class="$code"',
-        'fill="$fill" class="$code"$extra',
-      );
     }
 
     return svg;
