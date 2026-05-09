@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/pages/auth_page.dart';
 import 'package:geo_master/pages/capitals_quiz_page.dart';
+import 'package:geo_master/pages/countries_map_page.dart';
 import 'package:geo_master/pages/flags_quiz_page.dart';
 import 'package:geo_master/pages/profile_page.dart';
 import 'package:geo_master/pages/us_states_quiz_page.dart';
@@ -241,7 +242,7 @@ class _HomePageState extends State<HomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (_) =>
-                            USStatesQuizPage(language: widget.currentLanguage),
+                            CountriesMapPage(language: widget.currentLanguage),
                       ),
                     ),
                   ),

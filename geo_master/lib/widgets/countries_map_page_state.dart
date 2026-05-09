@@ -54,7 +54,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
   }
 
   Future<void> _loadSvg() async {
-    var raw = await rootBundle.loadString('assets/us_map.svg');
+    var raw = await rootBundle.loadString('assets/world_map.svg');
     raw = _inlineCssToAttributes(raw);
     setState(() => _svgRaw = raw);
   }
@@ -217,7 +217,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'US States',
+          'Countries of the world',
           style: TextStyle(
             color: Color(0xFF1A237E),
             fontWeight: FontWeight.bold,
@@ -351,7 +351,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Text(
-                        'Type the name of any US state',
+                        'Type the name of any country',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.white,
@@ -368,7 +368,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
                   enabled: !_quizFinished,
                   textCapitalization: TextCapitalization.words,
                   decoration: InputDecoration(
-                    hintText: 'e.g. California',
+                    hintText: 'e.g. France',
                     filled: true,
                     fillColor: Colors.white,
                     contentPadding: const EdgeInsets.symmetric(
