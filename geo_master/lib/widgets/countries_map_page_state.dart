@@ -32,7 +32,8 @@ class CountriesMapPageState extends State<CountriesMapPage>
   @override
   void initState() {
     super.initState();
-    _countries = CountryService.memory ?? [];
+    var temp = CountryService.memory ?? [];
+    _countries = temp.where((country) => country.unMember).toList();
 
     _pulseController = AnimationController(
       vsync: this,
