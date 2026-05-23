@@ -113,12 +113,13 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
     final match = _countries.firstWhere(
       (s) =>
-          s.trimmedName == normalized &&
-          !_correctCodes.contains(s.cca2.toLowerCase()),
+          (s.trimmedName == normalized ||
+              s.trimmedTranslations.contains(normalized)) &&
+          _correctCodes.contains(s.cca2.toLowerCase()),
       orElse: () => Country(
         flagLink: '',
         countryName: '',
-        internetExtensions: [],
+        internetExtensions: <String>[],
         cca3: '',
         unMember: false,
         capital: [],
@@ -128,6 +129,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
         iddSuffixes: [],
         translations: <String, String>{},
         trimmedName: '',
+        trimmedTranslations: <String>[],
         cca2: '',
       ),
     );

@@ -13,6 +13,7 @@ class Country {
   final List<String> iddSuffixes;
   final Map<String, String> translations;
   final String trimmedName;
+  final List<String> trimmedTranslations;
   final String cca2;
 
   Country({
@@ -28,6 +29,7 @@ class Country {
     required this.iddSuffixes,
     required this.translations,
     required this.trimmedName,
+    required this.trimmedTranslations,
     required this.cca2,
   });
 
@@ -52,6 +54,9 @@ class Country {
       iddSuffixes: List<String>.from(json['iddSuffixes']),
       translations: Map<String, String>.from(json['translations']),
       trimmedName: Country.normalize(json['countryName'] as String),
+      trimmedTranslations: Map<String, String>.from(
+        json['translations'],
+      ).entries.map((elt) => elt.value).toList(),
       cca2: json['cca2'] as String,
     );
   }
