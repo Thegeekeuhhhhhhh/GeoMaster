@@ -35,6 +35,11 @@ jobs:
           name: web-build
           path: geo_master/build/web/
 
+      - name: Commit built version
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "build(update): Update flutter web build"
+
   deploy-web:
     runs-on: ubuntu-latest
     needs: build-web

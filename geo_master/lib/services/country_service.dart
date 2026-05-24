@@ -9,6 +9,7 @@ class CountryService {
   static const _tsKey = 'countries_cache_timestamp';
 
   static List<Country>? memory;
+  static Map<String, Country> countryNames = {};
 
   static Future<List<Country>> fetchAll() async {
     if (memory != null) {
@@ -58,7 +59,13 @@ class CountryService {
     final countries = data
         .map((json) => Country.fromJson(json as Map<String, dynamic>))
         .toList();
-    countries.sort((a, b) => a.countryName.compareTo(b.countryName));
+    // countries.sort((a, b) => a.countryName.compareTo(b.countryName));
+    countries.forEach((country) {
+      country.translations.entries
+          .map((elt) => elt.value)
+          .toList()
+          .forEach((name) => countryNames[Country.normalize(name)] = country);
+    });
     return countries;
   }
 

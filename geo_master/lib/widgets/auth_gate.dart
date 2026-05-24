@@ -3,14 +3,14 @@ import '../pages/auth_page.dart';
 import '../services/auth_service.dart';
 import '../services/score_service.dart';
 
-Future<void> saveScoreWithAuthGate({
+Future<bool> saveScoreWithAuthGate({
   required BuildContext context,
   required String quizType,
   required int score,
   required int total,
 }) async {
   if (!context.mounted) {
-    return;
+    return false;
   }
 
   final cs = Theme.of(context).colorScheme;
@@ -53,7 +53,6 @@ Future<void> saveScoreWithAuthGate({
         ElevatedButton(
           onPressed: () {
             Navigator.pop(dialogContext);
-            Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: cs.primary,
@@ -69,7 +68,7 @@ Future<void> saveScoreWithAuthGate({
   );
 
   if (!context.mounted) {
-    return;
+    return false;
   }
 
   if (AuthService.isLoggedIn) {
@@ -78,7 +77,7 @@ Future<void> saveScoreWithAuthGate({
       score: score,
       total: total,
     );
-    return;
+    return true;
   }
 
   final didLogin = await showModalBottomSheet<bool>(
@@ -138,6 +137,8 @@ Future<void> saveScoreWithAuthGate({
                   if (context.mounted) {
                     Navigator.pop(context, result ?? false);
                   }
+
+                  // _submitOAuth(AuthService.signInWithGoogle);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: scs.primary,
@@ -175,4 +176,6 @@ Future<void> saveScoreWithAuthGate({
       total: total,
     );
   }
+
+  return true;
 }

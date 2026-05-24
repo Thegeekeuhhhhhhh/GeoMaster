@@ -129,12 +129,21 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
       });
 
       if (_correctCodes.length == _usStates.length) {
-        await saveScoreWithAuthGate(
+        final close = await saveScoreWithAuthGate(
           context: context,
           quizType: 'states',
           score: _score,
           total: _usStates.length,
         );
+
+        if (!mounted) {
+          return;
+        }
+
+        if (close) {
+          Navigator.pop(context);
+        }
+
         setState(() => _quizFinished = true);
       }
     }
@@ -232,12 +241,58 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
               onPressed: _quizFinished
                   ? null
                   : () async {
-                      await saveScoreWithAuthGate(
+                      final missedStates = _usStates
+                          .where(
+                            (country) => !_correctCodes.contains(
+                              country.id.toLowerCase(),
+                            ),
+                          )
+                          .toList();
+
+                      missedStates.sort((a, b) => a.id.compareTo(b.id));
+
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Countries you missed'),
+                          content: SizedBox(
+                            width: double.maxFinite,
+                            child: missedStates.isEmpty
+                                ? const Text('You guessed them all!')
+                                : ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: missedStates.length,
+                                    itemBuilder: (context, index) {
+                                      return ListTile(
+                                        dense: true,
+                                        title: Text(missedStates[index].name),
+                                      );
+                                    },
+                                  ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      );
+                      final close = await saveScoreWithAuthGate(
                         context: context,
                         quizType: 'states',
                         score: _score,
                         total: _usStates.length,
                       );
+
+                      if (!mounted) {
+                        return;
+                      }
+
+                      if (close) {
+                        Navigator.pop(context);
+                      }
+
                       setState(() => _quizFinished = true);
                     },
               child: const Text(

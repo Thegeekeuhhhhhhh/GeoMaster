@@ -39,6 +39,20 @@ class Country {
   }
 
   factory Country.fromJson(Map<String, dynamic> json) {
+    final translationsMap = (json['translations'] as Map<String, dynamic>).map(
+      (key, value) => MapEntry(key, value.toString()),
+    );
+
+    final Map<String, List<String>> croppedTranslations = {};
+    for (final value in translationsMap.values) {
+      final normalized = Country.normalize(value);
+
+      if (normalized.isEmpty) continue;
+
+      croppedTranslations.putIfAbsent(normalized[0], () => []);
+      croppedTranslations[normalized[0]]!.add(normalized);
+    }
+
     return Country(
       flagLink: json['flagLink'] as String,
       countryName: json['countryName'] as String,
@@ -50,7 +64,7 @@ class Country {
       area: json['area'] as double,
       iddRoot: json['iddRoot'] as String,
       iddSuffixes: List<String>.from(json['iddSuffixes']),
-      translations: Map<String, String>.from(json['translations']),
+      translations: translationsMap,
       trimmedName: Country.normalize(json['countryName'] as String),
       cca2: json['cca2'] as String,
     );
