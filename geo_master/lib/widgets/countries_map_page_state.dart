@@ -236,12 +236,21 @@ class CountriesMapPageState extends State<CountriesMapPage>
       });
 
       if (_correctCodes.length == _countries.length) {
-        await saveScoreWithAuthGate(
+        final close = await saveScoreWithAuthGate(
           context: context,
           quizType: 'states',
           score: _score,
           total: _countries.length,
         );
+
+        if (!mounted) {
+          return;
+        }
+
+        if (close) {
+          Navigator.pop(context);
+        }
+
         setState(() => _quizFinished = true);
       }
     }
@@ -334,12 +343,63 @@ class CountriesMapPageState extends State<CountriesMapPage>
               onPressed: _quizFinished
                   ? null
                   : () async {
-                      await saveScoreWithAuthGate(
+                      final missedCountries = _countries
+                          .where(
+                            (country) => !_correctCodes.contains(
+                              country.cca2.toLowerCase(),
+                            ),
+                          )
+                          .toList();
+
+                      missedCountries.sort(
+                        (a, b) => a.countryName.compareTo(b.countryName),
+                      );
+
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Countries you missed'),
+                          content: SizedBox(
+                            width: double.maxFinite,
+                            child: missedCountries.isEmpty
+                                ? const Text('You guessed them all!')
+                                : ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: missedCountries.length,
+                                    itemBuilder: (context, index) {
+                                      return ListTile(
+                                        dense: true,
+                                        title: Text(
+                                          missedCountries[index].countryName,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      final close = await saveScoreWithAuthGate(
                         context: context,
                         quizType: 'states',
                         score: _score,
                         total: _countries.length,
                       );
+
+                      if (!mounted) {
+                        return;
+                      }
+
+                      if (close) {
+                        Navigator.pop(context);
+                      }
+
                       setState(() => _quizFinished = true);
                     },
               child: const Text(
