@@ -7,6 +7,9 @@ import 'package:geo_master/models/country.dart';
 import 'package:geo_master/pages/countries_map_page.dart';
 import 'package:geo_master/services/country_service.dart';
 import 'package:geo_master/widgets/auth_gate.dart';
+import 'package:geo_master/widgets/small_country_dot_painter.dart';
+import 'package:path_drawing/path_drawing.dart';
+import 'package:xml/xml.dart';
 
 class CountriesMapPageState extends State<CountriesMapPage>
     with SingleTickerProviderStateMixin {
@@ -56,10 +59,101 @@ class CountriesMapPageState extends State<CountriesMapPage>
     super.dispose();
   }
 
+  Map<String, Offset> _smallCountryDots = {};
+  Map<String, Rect> _countryBounds = {};
+
   Future<void> _loadSvg() async {
     var raw = await rootBundle.loadString('assets/world_map.svg');
     raw = _inlineCssToAttributes(raw);
-    setState(() => _svgRaw = raw);
+
+    final bounds = _parseCountryBounds(raw);
+    _countryBounds = bounds;
+
+    setState(() {
+      _svgRaw = raw;
+      _smallCountryDots = _computeSmallCountryDots(bounds);
+    });
+  }
+
+  Map<String, Rect> _parseCountryBounds(String svgRaw) {
+    final doc = XmlDocument.parse(svgRaw);
+    final paths = doc.findAllElements('path');
+    final Map<String, Rect> bounds = {};
+
+    for (final path in paths) {
+      final id = path.getAttribute('id');
+      final d = path.getAttribute('d');
+      if (id == null || d == null) continue;
+
+      try {
+        final parsedPath = parseSvgPathData(d);
+        final rect = parsedPath.getBounds();
+        if (rect.isEmpty) continue;
+
+        final key = id.toUpperCase();
+        if (bounds.containsKey(key)) {
+          bounds[key] = bounds[key]!.expandToInclude(rect);
+        } else {
+          bounds[key] = rect;
+        }
+      } catch (_) {}
+    }
+
+    return bounds;
+  }
+
+  static const double _smallCountryThreshold = 25.0;
+
+  static const Set<String> _forceSmallCountries = {
+    "AD",
+    "AG",
+    "BB",
+    "BH",
+    "BN",
+    "BS",
+    "CV",
+    "DM",
+    "FJ",
+    "FM",
+    "GD",
+    "KI",
+    "KM",
+    "KN",
+    "LC",
+    "LI",
+    "LU",
+    "MC",
+    "MH",
+    "MV",
+    "NR",
+    "SB",
+    "SC",
+    "SG",
+    "SM",
+    "ST",
+    "TL",
+    "TO",
+    "TT",
+    "TV",
+    "VA",
+    "VC",
+    "VU",
+    "WS",
+  };
+
+  Map<String, Offset> _computeSmallCountryDots(Map<String, Rect> bounds) {
+    final validCodes = _countries.map((c) => c.cca2.toUpperCase()).toSet();
+
+    final Map<String, Offset> dots = {};
+    for (final entry in bounds.entries) {
+      if (!validCodes.contains(entry.key)) continue;
+
+      final r = entry.value;
+      if (_forceSmallCountries.contains(entry.key)) {
+        dots[entry.key] = r.center;
+      }
+    }
+    return dots;
   }
 
   String _inlineCssToAttributes(String svg) {
@@ -114,8 +208,9 @@ class CountriesMapPageState extends State<CountriesMapPage>
     final match = _countries.firstWhere(
       (s) =>
           (s.trimmedName == normalized ||
-              s.trimmedTranslations.contains(normalized)) &&
-          _correctCodes.contains(s.cca2.toLowerCase()),
+              (CountryService.countryNames[normalized] != null &&
+                  CountryService.countryNames[normalized]!.cca2 == s.cca2)) &&
+          !_correctCodes.contains(s.cca2.toLowerCase()),
       orElse: () => Country(
         flagLink: '',
         countryName: '',
@@ -129,7 +224,6 @@ class CountriesMapPageState extends State<CountriesMapPage>
         iddSuffixes: [],
         translations: <String, String>{},
         trimmedName: '',
-        trimmedTranslations: <String>[],
         cca2: '',
       ),
     );
@@ -206,6 +300,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
     final progress =
         _correctCodes.length / (_countries.isEmpty ? 1 : _countries.length);
     final currentTarget = _currentTarget;
+    final _svgViewBoxSize = const Size(1009.6727, 665.96301);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F0E8),
@@ -323,11 +418,56 @@ class CountriesMapPageState extends State<CountriesMapPage>
                   )
                 : AnimatedBuilder(
                     animation: _pulseAnim,
-                    builder: (_, _) {
+                    builder: (_, __) {
                       final svg = _buildPulsingSvg();
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: SvgPicture.string(svg, fit: BoxFit.contain),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            final scaleX =
+                                constraints.maxWidth / _svgViewBoxSize.width;
+                            final scaleY =
+                                constraints.maxHeight / _svgViewBoxSize.height;
+                            final scale = scaleX < scaleY ? scaleX : scaleY;
+
+                            final renderedW = _svgViewBoxSize.width * scale;
+                            final renderedH = _svgViewBoxSize.height * scale;
+
+                            final offsetX =
+                                (constraints.maxWidth - renderedW) / 2;
+                            final offsetY =
+                                (constraints.maxHeight - renderedH) / 2;
+
+                            return Stack(
+                              children: [
+                                Positioned(
+                                  left: offsetX,
+                                  top: offsetY,
+                                  width: renderedW,
+                                  height: renderedH,
+                                  child: SvgPicture.string(
+                                    svg,
+                                    fit: BoxFit.fill,
+                                    alignment: Alignment.topLeft,
+                                  ),
+                                ),
+                                CustomPaint(
+                                  size: Size(
+                                    constraints.maxWidth,
+                                    constraints.maxHeight,
+                                  ),
+                                  painter: SmallCountryDotPainter(
+                                    dotPositions: _smallCountryDots,
+                                    correctCodes: _correctCodes,
+                                    pulseValue: _pulseAnim.value,
+                                    svgOffset: Offset(offsetX, offsetY),
+                                    svgScale: scale,
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       );
                     },
                   ),
