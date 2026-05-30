@@ -120,8 +120,8 @@ class AppStrings {
     capitalsDesc: 'Teste tes connaissances sur les capitales.',
     continentsTitle: 'Continents & Océans',
     continentsDesc: 'Apprends les grandes terres et les mers.',
-    usTitle: 'TODO',
-    usDescription: 'TODO',
+    usTitle: 'Etats des Etats-Unis',
+    usDescription: 'Apprendre le nom des états des Etats-Unis',
 
     quizTitle: 'Drapeaux du Monde',
     quizQuestion: 'À quel pays appartient ce drapeau ?',
