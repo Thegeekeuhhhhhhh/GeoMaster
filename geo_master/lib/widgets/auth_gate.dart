@@ -132,7 +132,9 @@ Future<bool> saveScoreWithAuthGate({
                 onPressed: () async {
                   Navigator.pop(sheetContext);
 
-                  if (!context.mounted) return;
+                  if (!context.mounted) {
+                    return;
+                  }
 
                   final didLogin = await Navigator.push<bool>(
                     context,
@@ -184,4 +186,6 @@ Future<bool> saveScoreWithAuthGate({
       );
     },
   );
+
+  return false;
 }
