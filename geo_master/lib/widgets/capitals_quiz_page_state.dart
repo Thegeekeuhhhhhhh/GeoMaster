@@ -38,7 +38,9 @@ class CapitalsQuizPageState extends State<CapitalsQuizPage> {
     try {
       final all = CountryService.memory ?? [];
       setState(() {
-        _allCountries = all;
+        _allCountries = all
+            .where((country) => country.capital.isNotEmpty)
+            .toList();
         _loading = false;
       });
       _startNewGame();

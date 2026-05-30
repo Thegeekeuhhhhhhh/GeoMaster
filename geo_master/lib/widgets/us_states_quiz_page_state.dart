@@ -27,6 +27,8 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
 
   bool _quizFinished = false;
 
+  late ColorScheme _colorScheme;
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +94,11 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
     return svg;
   }
 
+  String get _unguessedStateHex {
+    final brightness = Theme.of(context).brightness;
+    return brightness == Brightness.dark ? '#4A5568' : '#CBD5E0';
+  }
+
   USState? get _currentTarget {
     for (final state in _shuffled) {
       if (!_correctCodes.contains(state.id.toLowerCase())) {
@@ -102,9 +109,7 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
   }
 
   Future<void> _onTextChanged(String value) async {
-    if (_quizFinished) {
-      return;
-    }
+    if (_quizFinished) return;
 
     final normalized = USState.normalize(value);
 
@@ -150,28 +155,21 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
   }
 
   String _buildPulsingSvg() {
-    if (_svgRaw == null) {
-      return '';
-    }
+    if (_svgRaw == null) return '';
     var svg = _svgRaw!;
+
+    final unguessedHex = _unguessedStateHex;
 
     for (final state in _usStates) {
       final code = state.id.toLowerCase();
       final isCorrect = _correctCodes.contains(code);
 
-      String fill;
-      String extra = '';
-
       // Exception for washington D.C.
       if (code == 'dc') {
-        if (isCorrect) {
-          fill = '#198A42';
-        } else {
-          fill = '#000000';
-        }
+        final fill = isCorrect ? '#198A42' : unguessedHex;
         svg = svg.replaceFirst(
           'fill="#000000" class="$code"',
-          'fill="$fill" class="$code"$extra',
+          'fill="$fill" class="$code"',
         );
         svg = svg.replaceFirst(
           '<circle class="state borders dccircle dc"',
@@ -182,14 +180,10 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
           '<circle class="state borders dccircle dc" fill="$fill"',
         );
       } else {
-        if (isCorrect) {
-          fill = '#22c55e';
-        } else {
-          fill = '#D0D0D0';
-        }
+        final fill = isCorrect ? '#22c55e' : unguessedHex;
         svg = svg.replaceFirst(
           'fill="#D0D0D0" class="$code"',
-          'fill="$fill" class="$code"$extra',
+          'fill="$fill" class="$code"',
         );
       }
     }
@@ -205,23 +199,26 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
 
   @override
   Widget build(BuildContext context) {
+    _colorScheme = Theme.of(context).colorScheme;
+    final colorScheme = _colorScheme;
+
     final progress =
         _correctCodes.length / (_usStates.isEmpty ? 1 : _usStates.length);
     final currentTarget = _currentTarget;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F0E8),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A237E)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'US States',
           style: TextStyle(
-            color: Color(0xFF1A237E),
+            color: colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -231,7 +228,10 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
             child: Center(
               child: Text(
                 '$_score / ${_usStates.length}',
-                style: const TextStyle(color: Color(0xFF555555), fontSize: 14),
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -295,10 +295,10 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
 
                       setState(() => _quizFinished = true);
                     },
-              child: const Text(
+              child: Text(
                 'Give Up',
                 style: TextStyle(
-                  color: Color(0xFFC62828),
+                  color: colorScheme.error,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -317,8 +317,8 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 6,
-                    backgroundColor: const Color(0xFFDDDDDD),
-                    valueColor: const AlwaysStoppedAnimation(Color(0xFF1A73E8)),
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                    valueColor: AlwaysStoppedAnimation(colorScheme.primary),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -327,32 +327,32 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
                   children: [
                     Row(
                       children: [
-                        _legendDot(const Color(0xFF3b82f6)),
+                        _legendDot(colorScheme.tertiary),
                         const SizedBox(width: 4),
-                        const Text(
+                        Text(
                           'Next target',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF555555),
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        _legendDot(const Color(0xFF22c55e)),
+                        _legendDot(Colors.green.shade500),
                         const SizedBox(width: 4),
-                        const Text(
+                        Text(
                           'Guessed',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF555555),
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
                     ),
                     Text(
                       'Score: $_score',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF555555),
+                        color: colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -366,8 +366,10 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
           Expanded(
             flex: 5,
             child: _svgRaw == null
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF1A237E)),
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: colorScheme.primary,
+                    ),
                   )
                 : AnimatedBuilder(
                     animation: _pulseAnim,
@@ -395,14 +397,14 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
                         horizontal: 16,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A237E),
+                        color: colorScheme.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Type the name of any US state',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colorScheme.onPrimary,
                           fontSize: 14,
                           fontStyle: FontStyle.italic,
                         ),
@@ -418,29 +420,29 @@ class USStatesQuizPageState extends State<USStatesQuizPage>
                   decoration: InputDecoration(
                     hintText: 'e.g. California',
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: colorScheme.surfaceContainerLow,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 14,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+                      borderSide: BorderSide(color: colorScheme.outlineVariant),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+                      borderSide: BorderSide(color: colorScheme.outlineVariant),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF1A237E),
+                      borderSide: BorderSide(
+                        color: colorScheme.primary,
                         width: 2,
                       ),
                     ),
-                    suffixIcon: const Icon(
+                    suffixIcon: Icon(
                       Icons.edit,
-                      color: Color(0xFF888888),
+                      color: colorScheme.onSurface.withOpacity(0.4),
                     ),
                   ),
                   onChanged: _onTextChanged,

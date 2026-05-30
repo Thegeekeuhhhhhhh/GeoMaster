@@ -71,16 +71,19 @@ Future<bool> saveScoreWithAuthGate({
     return false;
   }
 
+  // Already logged in so it saves immediately and go back
   if (AuthService.isLoggedIn) {
     await ScoreService.saveScore(
       quizType: quizType,
       score: score,
       total: total,
     );
+    if (context.mounted) Navigator.pop(context);
     return true;
   }
 
-  final didLogin = await showModalBottomSheet<bool>(
+  // Not logged in so it shows bottom sheet with login option
+  await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
@@ -127,15 +130,27 @@ Future<bool> saveScoreWithAuthGate({
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: ElevatedButton(
                 onPressed: () async {
-                  Navigator.pop(sheetContext, false);
-                  final result = await Navigator.push<bool>(
+                  Navigator.pop(sheetContext);
+
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  final didLogin = await Navigator.push<bool>(
                     context,
                     MaterialPageRoute(
                       builder: (_) => const AuthPage(isModal: false),
                     ),
                   );
-                  if (context.mounted) {
-                    Navigator.pop(context, result ?? false);
+
+                  // If login succeeded, save score and pop the quiz page
+                  if (didLogin == true && AuthService.isLoggedIn) {
+                    await ScoreService.saveScore(
+                      quizType: quizType,
+                      score: score,
+                      total: total,
+                    );
+                    if (context.mounted) Navigator.pop(context);
                   }
 
                   // _submitOAuth(AuthService.signInWithGoogle);
@@ -156,7 +171,10 @@ Future<bool> saveScoreWithAuthGate({
             ),
             const SizedBox(height: 12),
             TextButton(
-              onPressed: () => Navigator.pop(sheetContext, false),
+              onPressed: () {
+                Navigator.pop(sheetContext);
+                if (context.mounted) Navigator.pop(context);
+              },
               child: Text(
                 'Skip for now',
                 style: TextStyle(color: scs.onSurface.withOpacity(0.4)),
@@ -169,13 +187,5 @@ Future<bool> saveScoreWithAuthGate({
     },
   );
 
-  if (didLogin == true && AuthService.isLoggedIn) {
-    await ScoreService.saveScore(
-      quizType: quizType,
-      score: score,
-      total: total,
-    );
-  }
-
-  return true;
+  return false;
 }

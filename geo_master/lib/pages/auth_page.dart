@@ -76,6 +76,8 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     final content = SingleChildScrollView(
       padding: const EdgeInsets.all(28),
       child: Column(
@@ -84,10 +86,10 @@ class _AuthPageState extends State<AuthPage> {
           // Title
           Text(
             _isLogin ? 'Welcome back' : 'Create account',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1A237E),
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(height: 6),
@@ -95,7 +97,10 @@ class _AuthPageState extends State<AuthPage> {
             _isLogin
                 ? 'Sign in to save your scores.'
                 : 'Sign up to track your progress.',
-            style: const TextStyle(color: Color(0xFF666666), fontSize: 14),
+            style: TextStyle(
+              color: colorScheme.onSurface.withOpacity(0.6),
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 28),
 
@@ -134,7 +139,7 @@ class _AuthPageState extends State<AuthPage> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 _error!,
-                style: const TextStyle(color: Colors.red, fontSize: 13),
+                style: TextStyle(color: colorScheme.error, fontSize: 13),
               ),
             ),
 
@@ -144,19 +149,19 @@ class _AuthPageState extends State<AuthPage> {
           ElevatedButton(
             onPressed: _loading ? null : _submitEmailPassword,
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1A237E),
-              foregroundColor: Colors.white,
+              backgroundColor: colorScheme.primary,
+              foregroundColor: colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: _loading
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
-                      color: Colors.white,
+                      color: colorScheme.onPrimary,
                       strokeWidth: 2,
                     ),
                   )
@@ -169,14 +174,19 @@ class _AuthPageState extends State<AuthPage> {
           const SizedBox(height: 20),
 
           // Divider
-          const Row(
+          Row(
             children: [
-              Expanded(child: Divider()),
+              const Expanded(child: Divider()),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: Text('or', style: TextStyle(color: Color(0xFF888888))),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'or',
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withOpacity(0.4),
+                  ),
+                ),
               ),
-              Expanded(child: Divider()),
+              const Expanded(child: Divider()),
             ],
           ),
 
@@ -192,11 +202,15 @@ class _AuthPageState extends State<AuthPage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF4285F4),
+                color: Color(
+                  0xFF4285F4,
+                ), // Google brand intentionally hardcoded
               ),
             ),
             label: const Text('Continue with Google'),
             style: OutlinedButton.styleFrom(
+              foregroundColor: colorScheme.onSurface,
+              side: BorderSide(color: colorScheme.outlineVariant),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -212,9 +226,11 @@ class _AuthPageState extends State<AuthPage> {
               onPressed: _loading
                   ? null
                   : () => _submitOAuth(AuthService.signInWithApple),
-              icon: const Icon(Icons.apple, color: Colors.black),
+              icon: Icon(Icons.apple, color: colorScheme.onSurface),
               label: const Text('Continue with Apple'),
               style: OutlinedButton.styleFrom(
+                foregroundColor: colorScheme.onSurface,
+                side: BorderSide(color: colorScheme.outlineVariant),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -231,7 +247,7 @@ class _AuthPageState extends State<AuthPage> {
             children: [
               Text(
                 _isLogin ? "Don't have an account? " : 'Already have one? ',
-                style: const TextStyle(color: Color(0xFF666666)),
+                style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
               ),
               GestureDetector(
                 onTap: () => setState(() {
@@ -240,8 +256,8 @@ class _AuthPageState extends State<AuthPage> {
                 }),
                 child: Text(
                   _isLogin ? 'Sign Up' : 'Sign In',
-                  style: const TextStyle(
-                    color: Color(0xFF1A237E),
+                  style: TextStyle(
+                    color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -254,9 +270,9 @@ class _AuthPageState extends State<AuthPage> {
             const SizedBox(height: 12),
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text(
+              child: Text(
                 'Continue as guest',
-                style: TextStyle(color: Color(0xFF888888)),
+                style: TextStyle(color: colorScheme.onSurface.withOpacity(0.4)),
               ),
             ),
           ],
@@ -269,7 +285,7 @@ class _AuthPageState extends State<AuthPage> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: colorScheme.surface,
       body: SafeArea(child: content),
     );
   }

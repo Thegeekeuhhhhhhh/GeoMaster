@@ -40,33 +40,33 @@ class ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F0E8),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'My Profile',
           style: TextStyle(
-            color: Color(0xFF1A237E),
+            color: colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A237E)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
           TextButton(
             onPressed: _logout,
-            child: const Text('Sign out', style: TextStyle(color: Colors.red)),
+            child: Text('Sign out', style: TextStyle(color: colorScheme.error)),
           ),
         ],
       ),
       body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF1A237E)),
-            )
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : RefreshIndicator(
               onRefresh: _load,
               child: ListView(
@@ -76,17 +76,19 @@ class ProfilePageState extends State<ProfilePage> {
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1A237E),
+                      color: colorScheme.primary,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       children: [
-                        const CircleAvatar(
-                          backgroundColor: Colors.white24,
+                        CircleAvatar(
+                          backgroundColor: colorScheme.onPrimary.withOpacity(
+                            0.15,
+                          ),
                           radius: 28,
                           child: Icon(
                             Icons.person,
-                            color: Colors.white,
+                            color: colorScheme.onPrimary,
                             size: 30,
                           ),
                         ),
@@ -95,10 +97,10 @@ class ProfilePageState extends State<ProfilePage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Explorer',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: colorScheme.onPrimary,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -106,8 +108,8 @@ class ProfilePageState extends State<ProfilePage> {
                               const SizedBox(height: 4),
                               Text(
                                 AuthService.currentUser?.email ?? '',
-                                style: const TextStyle(
-                                  color: Color(0xFFB0BEC5),
+                                style: TextStyle(
+                                  color: colorScheme.onPrimary.withOpacity(0.7),
                                   fontSize: 13,
                                 ),
                               ),
@@ -121,20 +123,22 @@ class ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 28),
 
                   // Best scores
-                  const Text(
+                  Text(
                     'Best Scores',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF333333),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 12),
 
                   if (_bestScores.isEmpty)
-                    const Text(
+                    Text(
                       'No scores yet, complete a quiz first !',
-                      style: TextStyle(color: Color(0xFF888888)),
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withOpacity(0.5),
+                      ),
                     )
                   else
                     ..._bestScores.map((s) => _BestScoreCard(score: s)),
@@ -142,20 +146,22 @@ class ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 28),
 
                   // History
-                  const Text(
+                  Text(
                     'Recent Attempts',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF333333),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 12),
 
                   if (_history.isEmpty)
-                    const Text(
+                    Text(
                       'No attempts yet.',
-                      style: TextStyle(color: Color(0xFF888888)),
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withOpacity(0.5),
+                      ),
                     )
                   else
                     ..._history
@@ -186,16 +192,18 @@ class _BestScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final pct = score.bestScore / score.total;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: colorScheme.shadow.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -209,10 +217,10 @@ class _BestScoreCard extends StatelessWidget {
               children: [
                 Text(
                   _labels[score.quizType] ?? score.quizType,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
-                    color: Color(0xFF222222),
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -221,7 +229,7 @@ class _BestScoreCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: pct,
                     minHeight: 6,
-                    backgroundColor: const Color(0xFFEEEEEE),
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation(
                       pct >= 0.8
                           ? const Color(0xFF22c55e)
@@ -237,10 +245,10 @@ class _BestScoreCard extends StatelessWidget {
           const SizedBox(width: 16),
           Text(
             '${score.bestScore}/${score.total}',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
-              color: Color(0xFF1A237E),
+              color: colorScheme.primary,
             ),
           ),
         ],
@@ -257,6 +265,7 @@ class _HistoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final pct = (entry.score / entry.total * 100).round();
     final date =
         '${entry.playedAt.day}/${entry.playedAt.month}/${entry.playedAt.year}';
@@ -265,7 +274,7 @@ class _HistoryTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -276,16 +285,16 @@ class _HistoryTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF555555),
+                    color: colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
                 Text(
                   date,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF999999),
+                    color: colorScheme.onSurface.withOpacity(0.4),
                   ),
                 ),
               ],
