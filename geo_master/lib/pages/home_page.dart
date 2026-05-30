@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geo_master/l10n/app_strings.dart';
 import 'package:geo_master/pages/auth_page.dart';
 import 'package:geo_master/pages/capitals_quiz_page.dart';
+import 'package:geo_master/pages/countries_map_page.dart';
 import 'package:geo_master/pages/flags_quiz_page.dart';
 import 'package:geo_master/pages/profile_page.dart';
 import 'package:geo_master/pages/us_states_quiz_page.dart';
@@ -191,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                     icon: '🏳️',
                     label: widget.l10n.flagsTitle,
                     description: widget.l10n.flagsDesc,
-                    accentColor: const Color(0xFF1A73E8),
+                    accentColor: const Color.fromRGBO(26, 115, 232, 1),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -200,12 +201,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 14),
                   TopicCard(
                     icon: '🗺️',
                     label: widget.l10n.capitalsTitle,
                     description: widget.l10n.capitalsDesc,
-                    accentColor: const Color(0xFF2E7D32),
+                    accentColor: const Color.fromRGBO(46, 125, 50, 1),
                     onTap: () => Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -214,6 +216,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 14),
                   TopicCard(
                     icon: '🇺🇸',
@@ -228,11 +231,27 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+
+                  const SizedBox(height: 14),
+                  TopicCard(
+                    icon: '🌍',
+                    label: widget.l10n.mapGuessTitle,
+                    description: widget.l10n.mapGuessDescription,
+                    accentColor: const Color.fromARGB(255, 47, 179, 20),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            CountriesMapPage(language: widget.currentLanguage),
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(height: 14),
                   TopicCard(
                     icon: '😈',
-                    label: widget.l10n.quizTitle,
-                    description: widget.l10n.quizQuestion,
+                    label: widget.l10n.soon,
+                    description: widget.l10n.soon,
                     accentColor: const Color(0xFF000000),
                     comingSoon: true,
                     comingSoonLabel: widget.l10n.soon,

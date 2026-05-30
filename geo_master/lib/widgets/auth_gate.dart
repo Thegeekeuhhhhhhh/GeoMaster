@@ -3,13 +3,15 @@ import '../pages/auth_page.dart';
 import '../services/auth_service.dart';
 import '../services/score_service.dart';
 
-Future<void> saveScoreWithAuthGate({
+Future<bool> saveScoreWithAuthGate({
   required BuildContext context,
   required String quizType,
   required int score,
   required int total,
 }) async {
-  if (!context.mounted) return;
+  if (!context.mounted) {
+    return false;
+  }
 
   final cs = Theme.of(context).colorScheme;
   final ratio = score / total;
@@ -49,7 +51,9 @@ Future<void> saveScoreWithAuthGate({
       ),
       actions: [
         ElevatedButton(
-          onPressed: () => Navigator.pop(dialogContext),
+          onPressed: () {
+            Navigator.pop(dialogContext);
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: cs.primary,
             foregroundColor: cs.onPrimary,
@@ -63,7 +67,9 @@ Future<void> saveScoreWithAuthGate({
     ),
   );
 
-  if (!context.mounted) return;
+  if (!context.mounted) {
+    return false;
+  }
 
   // Already logged in so it saves immediately and go back
   if (AuthService.isLoggedIn) {
@@ -73,7 +79,7 @@ Future<void> saveScoreWithAuthGate({
       total: total,
     );
     if (context.mounted) Navigator.pop(context);
-    return;
+    return true;
   }
 
   // Not logged in so it shows bottom sheet with login option
@@ -144,6 +150,8 @@ Future<void> saveScoreWithAuthGate({
                     );
                     if (context.mounted) Navigator.pop(context);
                   }
+
+                  // _submitOAuth(AuthService.signInWithGoogle);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: scs.primary,

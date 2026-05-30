@@ -17,6 +17,8 @@ class AppStrings {
   final String continentsDesc;
   final String usTitle;
   final String usDescription;
+  final String mapGuessTitle;
+  final String mapGuessDescription;
 
   // Quiz
   final String quizTitle;
@@ -47,6 +49,8 @@ class AppStrings {
     required this.continentsDesc,
     required this.usTitle,
     required this.usDescription,
+    required this.mapGuessTitle,
+    required this.mapGuessDescription,
 
     required this.quizTitle,
     required this.quizQuestion,
@@ -92,6 +96,8 @@ class AppStrings {
     continentsDesc: 'Learn the major landmasses and seas.',
     usTitle: 'US States',
     usDescription: 'Find every states of the USA',
+    mapGuessTitle: 'Countries',
+    mapGuessDescription: 'Find every countries on the map',
 
     quizTitle: 'Flags of the World',
     quizQuestion: 'Which country does this flag belong to?',
@@ -122,6 +128,8 @@ class AppStrings {
     continentsDesc: 'Apprends les grandes terres et les mers.',
     usTitle: 'Etats des Etats-Unis',
     usDescription: 'Apprendre le nom des états des Etats-Unis',
+    mapGuessTitle: 'Pays du monde',
+    mapGuessDescription: 'Apprendre à restituer tous les pays du monde',
 
     quizTitle: 'Drapeaux du Monde',
     quizQuestion: 'À quel pays appartient ce drapeau ?',
@@ -152,6 +160,8 @@ class AppStrings {
     continentsDesc: 'Aprende las grandes masas terrestres y mares.',
     usTitle: 'TODO',
     usDescription: 'TODO',
+    mapGuessTitle: 'TODO',
+    mapGuessDescription: 'TODO',
 
     quizTitle: 'Banderas del Mundo',
     quizQuestion: '¿A qué país pertenece esta bandera?',
@@ -182,6 +192,8 @@ class AppStrings {
     continentsDesc: 'Lerne die großen Landmassen und Meere.',
     usTitle: 'TODO',
     usDescription: 'TODO',
+    mapGuessTitle: 'TODO',
+    mapGuessDescription: 'TODO',
 
     quizTitle: 'Flaggen der Welt',
     quizQuestion: 'Zu welchem Land gehört diese Flagge?',
@@ -212,6 +224,8 @@ class AppStrings {
     continentsDesc: 'Aprende as grandes massas terrestres e mares.',
     usTitle: 'TODO',
     usDescription: 'TODO',
+    mapGuessTitle: 'TODO',
+    mapGuessDescription: 'TODO',
 
     quizTitle: 'Bandeiras do Mundo',
     quizQuestion: 'A que país pertence esta bandeira?',
