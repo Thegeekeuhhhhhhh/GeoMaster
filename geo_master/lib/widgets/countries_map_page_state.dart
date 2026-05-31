@@ -30,8 +30,6 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
   bool _quizFinished = false;
 
-  var _iterationInitialization = true;
-
   @override
   void initState() {
     super.initState();
@@ -58,6 +56,8 @@ class CountriesMapPageState extends State<CountriesMapPage>
     _focusNode.dispose();
     super.dispose();
   }
+
+  ColorScheme get _colorScheme => Theme.of(context).colorScheme;
 
   Map<String, Offset> _smallCountryDots = {};
   Map<String, Rect> _countryBounds = {};
@@ -193,6 +193,11 @@ class CountriesMapPageState extends State<CountriesMapPage>
     return svg;
   }
 
+  String get _unguessedCountryHex {
+    final c = _colorScheme.surfaceContainerHighest;
+    return '#${c.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+  }
+
   Country? get _currentTarget {
     for (final state in _shuffled) {
       if (!_correctCodes.contains(state.cca2.toLowerCase())) {
@@ -261,42 +266,27 @@ class CountriesMapPageState extends State<CountriesMapPage>
   }
 
   String _buildPulsingSvg() {
-    if (_svgRaw == null) {
-      return '';
-    }
+    if (_svgRaw == null) return '';
     var svg = _svgRaw!;
 
-    if (_iterationInitialization) {
-      for (final state in _countries) {
-        final code = state.cca2.toUpperCase();
-        final isCorrect = _correctCodes.contains(state.cca2.toLowerCase());
+    final unguessedHex = _unguessedCountryHex;
+    const stroke =
+        'stroke="#000000" stroke-width="0.4" stroke-linejoin="round"';
 
-        String fill;
+    for (final state in _countries) {
+      final code = state.cca2.toUpperCase();
+      final isCorrect = _correctCodes.contains(state.cca2.toLowerCase());
 
-        if (isCorrect) {
-          fill = '#22c55e';
-        } else {
-          fill = '#D0D0D0';
-        }
+      final fill = isCorrect ? '#22c55e' : unguessedHex;
 
-        svg = svg.replaceFirst(
-          'id="$code" fill="#D0D0D0"',
-          'id="$code" fill="$fill"',
-        );
-        svg = svg.replaceFirst('id="$code" />', 'id="$code" fill="$fill" />');
-      }
-
-      _svgRaw = svg;
-      _iterationInitialization = false;
-    } else {
-      for (final state in _correctCodes.toList()) {
-        final code = state.toUpperCase();
-
-        svg = svg.replaceFirst(
-          'id="$code" fill="#D0D0D0"',
-          'id="$code" fill="#22c55e"',
-        );
-      }
+      svg = svg.replaceFirst(
+        'id="$code" fill="#D0D0D0"',
+        'id="$code" fill="$fill" $stroke',
+      );
+      svg = svg.replaceFirst(
+        'id="$code" />',
+        'id="$code" fill="$fill" $stroke />',
+      );
     }
 
     return svg;
@@ -310,24 +300,25 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = _colorScheme;
     final progress =
         _correctCodes.length / (_countries.isEmpty ? 1 : _countries.length);
     final currentTarget = _currentTarget;
     final _svgViewBoxSize = const Size(1009.6727, 665.96301);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F0E8),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF5F0E8),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A237E)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Countries of the world',
           style: TextStyle(
-            color: Color(0xFF1A237E),
+            color: colorScheme.primary,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -337,7 +328,10 @@ class CountriesMapPageState extends State<CountriesMapPage>
             child: Center(
               child: Text(
                 '$_score / ${_countries.length}',
-                style: const TextStyle(color: Color(0xFF555555), fontSize: 14),
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 14,
+                ),
               ),
             ),
           ),
@@ -406,10 +400,10 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
                       setState(() => _quizFinished = true);
                     },
-              child: const Text(
+              child: Text(
                 'Give Up',
                 style: TextStyle(
-                  color: Color(0xFFC62828),
+                  color: colorScheme.error,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -428,8 +422,8 @@ class CountriesMapPageState extends State<CountriesMapPage>
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 6,
-                    backgroundColor: const Color(0xFFDDDDDD),
-                    valueColor: const AlwaysStoppedAnimation(Color(0xFF1A73E8)),
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                    valueColor: AlwaysStoppedAnimation(colorScheme.primary),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -438,32 +432,32 @@ class CountriesMapPageState extends State<CountriesMapPage>
                   children: [
                     Row(
                       children: [
-                        _legendDot(const Color(0xFF3b82f6)),
+                        _legendDot(colorScheme.tertiary),
                         const SizedBox(width: 4),
-                        const Text(
+                        Text(
                           'Next target',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF555555),
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                         const SizedBox(width: 12),
-                        _legendDot(const Color(0xFF22c55e)),
+                        _legendDot(Colors.green.shade500),
                         const SizedBox(width: 4),
-                        const Text(
+                        Text(
                           'Guessed',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF555555),
+                            color: colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                       ],
                     ),
                     Text(
                       'Score: $_score',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF555555),
+                        color: colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -477,8 +471,10 @@ class CountriesMapPageState extends State<CountriesMapPage>
           Expanded(
             flex: 5,
             child: _svgRaw == null
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF1A237E)),
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: colorScheme.primary,
+                    ),
                   )
                 : AnimatedBuilder(
                     animation: _pulseAnim,
@@ -551,14 +547,14 @@ class CountriesMapPageState extends State<CountriesMapPage>
                         horizontal: 16,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF1A237E),
+                        color: colorScheme.primary,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Type the name of any country',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colorScheme.onPrimary,
                           fontSize: 14,
                           fontStyle: FontStyle.italic,
                         ),
@@ -574,29 +570,29 @@ class CountriesMapPageState extends State<CountriesMapPage>
                   decoration: InputDecoration(
                     hintText: 'e.g. France',
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: colorScheme.surfaceContainerLow,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16,
                       vertical: 14,
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+                      borderSide: BorderSide(color: colorScheme.outlineVariant),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+                      borderSide: BorderSide(color: colorScheme.outlineVariant),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Color(0xFF1A237E),
+                      borderSide: BorderSide(
+                        color: colorScheme.primary,
                         width: 2,
                       ),
                     ),
-                    suffixIcon: const Icon(
+                    suffixIcon: Icon(
                       Icons.edit,
-                      color: Color(0xFF888888),
+                      color: colorScheme.onSurface.withOpacity(0.4),
                     ),
                   ),
                   onChanged: _onTextChanged,
