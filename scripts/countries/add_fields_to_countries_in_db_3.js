@@ -28,6 +28,10 @@ const newAliases = [
         shortName: "macedoine"
     },
     {
+        cca2: "PG",
+        shortName: "nouvelle guinee"
+    },
+    {
         cca2: "VC",
         shortName: "saint vincent"
     },
