@@ -30,11 +30,24 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
   bool _quizFinished = false;
 
+  final Map<String, Country> _byTrimmedName = {};
+  final Map<String, Country> _byShortName = {};
+
+  void _buildLookups() {
+    for (final c in _countries) {
+      _byTrimmedName[c.trimmedName] = c;
+      if (c.shortName.isNotEmpty) {
+        _byShortName[c.shortName] = c;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     var temp = CountryService.memory ?? [];
     _countries = temp.where((country) => country.unMember).toList();
+    _buildLookups();
 
     _pulseController = AnimationController(
       vsync: this,
@@ -60,14 +73,12 @@ class CountriesMapPageState extends State<CountriesMapPage>
   ColorScheme get _colorScheme => Theme.of(context).colorScheme;
 
   Map<String, Offset> _smallCountryDots = {};
-  Map<String, Rect> _countryBounds = {};
 
   Future<void> _loadSvg() async {
     var raw = await rootBundle.loadString('assets/world_map.svg');
     raw = _inlineCssToAttributes(raw);
 
     final bounds = _parseCountryBounds(raw);
-    _countryBounds = bounds;
 
     setState(() {
       _svgRaw = raw;
@@ -101,8 +112,6 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
     return bounds;
   }
-
-  static const double _smallCountryThreshold = 25.0;
 
   static const Set<String> _forceSmallCountries = {
     "AD",
@@ -214,54 +223,38 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
     final normalized = Country.normalize(value);
 
-    final match = _countries.firstWhere(
-      (s) =>
-          (s.trimmedName == normalized ||
-              (CountryService.countryNames[normalized] != null &&
-                  CountryService.countryNames[normalized]!.cca2 == s.cca2)) &&
-          !_correctCodes.contains(s.cca2.toLowerCase()),
-      orElse: () => Country(
-        flagLink: '',
-        countryName: '',
-        internetExtensions: <String>[],
-        cca3: '',
-        unMember: false,
-        capital: [],
-        borders: [],
-        area: 0,
-        iddRoot: '',
-        iddSuffixes: [],
-        translations: <String, String>{},
-        trimmedName: '',
-        cca2: '',
-      ),
-    );
+    final Country? match =
+        _byTrimmedName[normalized] ??
+        _byShortName[normalized] ??
+        CountryService.countryNames[normalized];
 
-    if (match.cca2.isNotEmpty) {
-      setState(() {
-        _score++;
-        _correctCodes.add(match.cca2.toLowerCase());
-        _textController.clear();
-      });
+    if (match == null || _correctCodes.contains(match.cca2.toLowerCase())) {
+      return;
+    }
 
-      if (_correctCodes.length == _countries.length) {
-        final close = await saveScoreWithAuthGate(
-          context: context,
-          quizType: 'countries',
-          score: _score,
-          total: _countries.length,
-        );
+    setState(() {
+      _score++;
+      _correctCodes.add(match.cca2.toLowerCase());
+      _textController.clear();
+    });
 
-        if (!mounted) {
-          return;
-        }
+    if (_correctCodes.length == _countries.length) {
+      final close = await saveScoreWithAuthGate(
+        context: context,
+        quizType: 'countries',
+        score: _score,
+        total: _countries.length,
+      );
 
-        if (close) {
-          Navigator.pop(context);
-        }
-
-        setState(() => _quizFinished = true);
+      if (!mounted) {
+        return;
       }
+
+      if (close) {
+        Navigator.pop(context);
+      }
+
+      setState(() => _quizFinished = true);
     }
   }
 

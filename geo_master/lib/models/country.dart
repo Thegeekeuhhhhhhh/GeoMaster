@@ -14,6 +14,7 @@ class Country {
   final Map<String, String> translations;
   final String trimmedName;
   final String cca2;
+  final String shortName;
 
   Country({
     required this.flagLink,
@@ -29,6 +30,7 @@ class Country {
     required this.translations,
     required this.trimmedName,
     required this.cca2,
+    required this.shortName,
   });
 
   String nameIn(AppLanguage lang) {
@@ -67,6 +69,7 @@ class Country {
       translations: translationsMap,
       trimmedName: Country.normalize(json['countryName'] as String),
       cca2: json['cca2'] as String,
+      shortName: Country.normalize((json['shortName'] ?? '') as String),
     );
   }
 
@@ -83,6 +86,7 @@ class Country {
     'iddSuffixes': iddSuffixes,
     'translations': translations,
     'cca2': cca2,
+    'shortName': shortName,
   };
 
   static String normalize(String input) {
