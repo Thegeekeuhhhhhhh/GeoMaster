@@ -23,6 +23,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
   late Animation<double> _pulseAnim;
 
   String? _svgRaw;
+  String? _cachedSvg;
 
   final Random _random = Random();
   final TextEditingController _textController = TextEditingController();
@@ -45,8 +46,8 @@ class CountriesMapPageState extends State<CountriesMapPage>
   @override
   void initState() {
     super.initState();
-    var temp = CountryService.memory ?? [];
-    _countries = temp.where((country) => country.unMember).toList();
+    final temp = CountryService.memory ?? [];
+    _countries = temp.where((c) => c.unMember).toList();
     _buildLookups();
 
     _pulseController = AnimationController(
@@ -79,34 +80,33 @@ class CountriesMapPageState extends State<CountriesMapPage>
     raw = _inlineCssToAttributes(raw);
 
     final bounds = _parseCountryBounds(raw);
+    final dots = _computeSmallCountryDots(bounds);
+
+    final initialSvg = _buildSvgFromScratch(raw);
 
     setState(() {
       _svgRaw = raw;
-      _smallCountryDots = _computeSmallCountryDots(bounds);
+      _cachedSvg = initialSvg;
+      _smallCountryDots = dots;
     });
   }
 
   Map<String, Rect> _parseCountryBounds(String svgRaw) {
     final doc = XmlDocument.parse(svgRaw);
-    final paths = doc.findAllElements('path');
     final Map<String, Rect> bounds = {};
 
-    for (final path in paths) {
+    for (final path in doc.findAllElements('path')) {
       final id = path.getAttribute('id');
       final d = path.getAttribute('d');
       if (id == null || d == null) continue;
 
       try {
-        final parsedPath = parseSvgPathData(d);
-        final rect = parsedPath.getBounds();
+        final rect = parseSvgPathData(d).getBounds();
         if (rect.isEmpty) continue;
-
         final key = id.toUpperCase();
-        if (bounds.containsKey(key)) {
-          bounds[key] = bounds[key]!.expandToInclude(rect);
-        } else {
-          bounds[key] = rect;
-        }
+        bounds[key] = bounds.containsKey(key)
+            ? bounds[key]!.expandToInclude(rect)
+            : rect;
       } catch (_) {}
     }
 
@@ -156,14 +156,11 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
   Map<String, Offset> _computeSmallCountryDots(Map<String, Rect> bounds) {
     final validCodes = _countries.map((c) => c.cca2.toUpperCase()).toSet();
-
     final Map<String, Offset> dots = {};
     for (final entry in bounds.entries) {
       if (!validCodes.contains(entry.key)) continue;
-
-      final r = entry.value;
       if (_forceSmallCountries.contains(entry.key)) {
-        dots[entry.key] = r.center;
+        dots[entry.key] = entry.value.center;
       }
     }
     return dots;
@@ -176,18 +173,15 @@ class CountriesMapPageState extends State<CountriesMapPage>
     );
 
     final Map<String, String> classFills = {};
-
     for (final match in styleRegex.allMatches(svg)) {
       classFills[match.group(1)!] = match.group(2)!;
     }
 
     final defaultFill = classFills['state'] ?? '#D0D0D0';
-
     svg = svg.replaceAll(RegExp(r'<style[^>]*>.*?</style>', dotAll: true), '');
 
     svg = svg.replaceAllMapped(RegExp(r'<path class="([\w\s]+)"'), (match) {
       final classes = match.group(1)!.trim().split(RegExp(r'\s+'));
-
       String fill = defaultFill;
       for (final cls in classes) {
         if (classFills.containsKey(cls) && cls != 'state') {
@@ -195,7 +189,6 @@ class CountriesMapPageState extends State<CountriesMapPage>
           break;
         }
       }
-
       return '<path fill="$fill" class="${classes.join(' ')}"';
     });
 
@@ -209,68 +202,23 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
   Country? get _currentTarget {
     for (final state in _shuffled) {
-      if (!_correctCodes.contains(state.cca2.toLowerCase())) {
-        return state;
-      }
+      if (!_correctCodes.contains(state.cca2.toLowerCase())) return state;
     }
     return null;
   }
 
-  Future<void> _onTextChanged(String value) async {
-    if (_quizFinished) {
-      return;
-    }
-
-    final normalized = Country.normalize(value);
-
-    final Country? match =
-        _byTrimmedName[normalized] ??
-        _byShortName[normalized] ??
-        CountryService.countryNames[normalized];
-
-    if (match == null || _correctCodes.contains(match.cca2.toLowerCase())) {
-      return;
-    }
-
-    setState(() {
-      _score++;
-      _correctCodes.add(match.cca2.toLowerCase());
-      _textController.clear();
-    });
-
-    if (_correctCodes.length == _countries.length) {
-      final close = await saveScoreWithAuthGate(
-        context: context,
-        quizType: 'countries',
-        score: _score,
-        total: _countries.length,
-      );
-
-      if (!mounted) {
-        return;
-      }
-
-      if (close) {
-        Navigator.pop(context);
-      }
-
-      setState(() => _quizFinished = true);
-    }
-  }
-
-  String _buildPulsingSvg() {
-    if (_svgRaw == null) return '';
-    var svg = _svgRaw!;
-
+  // Builds the full SVG string from scratch, only called once
+  String _buildSvgFromScratch(String base) {
+    var svg = base;
     final unguessedHex = _unguessedCountryHex;
     const stroke =
         'stroke="#000000" stroke-width="0.4" stroke-linejoin="round"';
 
     for (final state in _countries) {
       final code = state.cca2.toUpperCase();
-      final isCorrect = _correctCodes.contains(state.cca2.toLowerCase());
-
-      final fill = isCorrect ? '#22c55e' : unguessedHex;
+      final fill = _correctCodes.contains(state.cca2.toLowerCase())
+          ? '#22c55e'
+          : unguessedHex;
 
       svg = svg.replaceFirst(
         'id="$code" fill="#D0D0D0"',
@@ -285,6 +233,61 @@ class CountriesMapPageState extends State<CountriesMapPage>
     return svg;
   }
 
+  void _patchCachedSvg(String cca2) {
+    if (_cachedSvg == null) return;
+    final code = cca2.toUpperCase();
+    const stroke =
+        'stroke="#000000" stroke-width="0.4" stroke-linejoin="round"';
+    const green = '#22c55e';
+    final unguessedHex = _unguessedCountryHex;
+
+    var svg = _cachedSvg!;
+    svg = svg.replaceFirst(
+      'id="$code" fill="$unguessedHex" $stroke',
+      'id="$code" fill="$green" $stroke',
+    );
+    svg = svg.replaceFirst(
+      'id="$code" fill="$unguessedHex" $stroke />',
+      'id="$code" fill="$green" $stroke />',
+    );
+    _cachedSvg = svg;
+  }
+
+  Future<void> _onTextChanged(String value) async {
+    if (_quizFinished) return;
+
+    final normalized = Country.normalize(value);
+
+    final Country? match =
+        _byTrimmedName[normalized] ??
+        _byShortName[normalized] ??
+        CountryService.countryNames[normalized];
+
+    if (match == null || _correctCodes.contains(match.cca2.toLowerCase()))
+      return;
+
+    _correctCodes.add(match.cca2.toLowerCase());
+    _patchCachedSvg(match.cca2);
+
+    setState(() {
+      _score++;
+      _textController.clear();
+    });
+
+    if (_correctCodes.length == _countries.length) {
+      final close = await saveScoreWithAuthGate(
+        context: context,
+        quizType: 'countries',
+        score: _score,
+        total: _countries.length,
+      );
+
+      if (!mounted) return;
+      if (close) Navigator.pop(context);
+      setState(() => _quizFinished = true);
+    }
+  }
+
   Widget _legendDot(Color color) => Container(
     width: 10,
     height: 10,
@@ -297,7 +300,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
     final progress =
         _correctCodes.length / (_countries.isEmpty ? 1 : _countries.length);
     final currentTarget = _currentTarget;
-    final _svgViewBoxSize = const Size(1009.6727, 665.96301);
+    const svgViewBoxSize = Size(1009.6727, 665.96301);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -334,17 +337,17 @@ class CountriesMapPageState extends State<CountriesMapPage>
               onPressed: _quizFinished
                   ? null
                   : () async {
-                      final missedCountries = _countries
-                          .where(
-                            (country) => !_correctCodes.contains(
-                              country.cca2.toLowerCase(),
-                            ),
-                          )
-                          .toList();
-
-                      missedCountries.sort(
-                        (a, b) => a.countryName.compareTo(b.countryName),
-                      );
+                      final missedCountries =
+                          _countries
+                              .where(
+                                (country) => !_correctCodes.contains(
+                                  country.cca2.toLowerCase(),
+                                ),
+                              )
+                              .toList()
+                            ..sort(
+                              (a, b) => a.countryName.compareTo(b.countryName),
+                            );
 
                       await showDialog(
                         context: context,
@@ -357,14 +360,12 @@ class CountriesMapPageState extends State<CountriesMapPage>
                                 : ListView.builder(
                                     shrinkWrap: true,
                                     itemCount: missedCountries.length,
-                                    itemBuilder: (context, index) {
-                                      return ListTile(
-                                        dense: true,
-                                        title: Text(
-                                          missedCountries[index].countryName,
-                                        ),
-                                      );
-                                    },
+                                    itemBuilder: (context, index) => ListTile(
+                                      dense: true,
+                                      title: Text(
+                                        missedCountries[index].countryName,
+                                      ),
+                                    ),
                                   ),
                           ),
                           actions: [
@@ -383,14 +384,8 @@ class CountriesMapPageState extends State<CountriesMapPage>
                         total: _countries.length,
                       );
 
-                      if (!mounted) {
-                        return;
-                      }
-
-                      if (close) {
-                        Navigator.pop(context);
-                      }
-
+                      if (!mounted) return;
+                      if (close) Navigator.pop(context);
                       setState(() => _quizFinished = true);
                     },
               child: Text(
@@ -463,66 +458,60 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
           Expanded(
             flex: 5,
-            child: _svgRaw == null
+            child: _cachedSvg == null
                 ? Center(
                     child: CircularProgressIndicator(
                       color: colorScheme.primary,
                     ),
                   )
-                : AnimatedBuilder(
-                    animation: _pulseAnim,
-                    builder: (_, __) {
-                      final svg = _buildPulsingSvg();
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final scaleX =
-                                constraints.maxWidth / _svgViewBoxSize.width;
-                            final scaleY =
-                                constraints.maxHeight / _svgViewBoxSize.height;
-                            final scale = scaleX < scaleY ? scaleX : scaleY;
+                : Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final scaleX =
+                            constraints.maxWidth / svgViewBoxSize.width;
+                        final scaleY =
+                            constraints.maxHeight / svgViewBoxSize.height;
+                        final scale = scaleX < scaleY ? scaleX : scaleY;
 
-                            final renderedW = _svgViewBoxSize.width * scale;
-                            final renderedH = _svgViewBoxSize.height * scale;
+                        final renderedW = svgViewBoxSize.width * scale;
+                        final renderedH = svgViewBoxSize.height * scale;
+                        final offsetX = (constraints.maxWidth - renderedW) / 2;
+                        final offsetY = (constraints.maxHeight - renderedH) / 2;
 
-                            final offsetX =
-                                (constraints.maxWidth - renderedW) / 2;
-                            final offsetY =
-                                (constraints.maxHeight - renderedH) / 2;
-
-                            return Stack(
-                              children: [
-                                Positioned(
-                                  left: offsetX,
-                                  top: offsetY,
-                                  width: renderedW,
-                                  height: renderedH,
-                                  child: SvgPicture.string(
-                                    svg,
-                                    fit: BoxFit.fill,
-                                    alignment: Alignment.topLeft,
-                                  ),
+                        return Stack(
+                          children: [
+                            Positioned(
+                              left: offsetX,
+                              top: offsetY,
+                              width: renderedW,
+                              height: renderedH,
+                              child: SvgPicture.string(
+                                _cachedSvg!,
+                                fit: BoxFit.fill,
+                                alignment: Alignment.topLeft,
+                              ),
+                            ),
+                            AnimatedBuilder(
+                              animation: _pulseAnim,
+                              builder: (_, __) => CustomPaint(
+                                size: Size(
+                                  constraints.maxWidth,
+                                  constraints.maxHeight,
                                 ),
-                                CustomPaint(
-                                  size: Size(
-                                    constraints.maxWidth,
-                                    constraints.maxHeight,
-                                  ),
-                                  painter: SmallCountryDotPainter(
-                                    dotPositions: _smallCountryDots,
-                                    correctCodes: _correctCodes,
-                                    pulseValue: _pulseAnim.value,
-                                    svgOffset: Offset(offsetX, offsetY),
-                                    svgScale: scale,
-                                  ),
+                                painter: SmallCountryDotPainter(
+                                  dotPositions: _smallCountryDots,
+                                  correctCodes: _correctCodes,
+                                  pulseValue: _pulseAnim.value,
+                                  svgOffset: Offset(offsetX, offsetY),
+                                  svgScale: scale,
                                 ),
-                              ],
-                            );
-                          },
-                        ),
-                      );
-                    },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
           ),
 
