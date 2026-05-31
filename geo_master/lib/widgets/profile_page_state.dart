@@ -10,8 +10,9 @@ class ProfilePageState extends State<ProfilePage> {
 
   static const Map<String, String> _quizLabels = {
     'flags': '🏳️  Flags of the World',
-    'states': '🗺️  US States',
     'capitals': '🏛️  World Capitals',
+    'states': '🗺️  US States',
+    'countries': '🌍  Countries game',
   };
 
   @override

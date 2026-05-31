@@ -247,7 +247,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
       if (_correctCodes.length == _countries.length) {
         final close = await saveScoreWithAuthGate(
           context: context,
-          quizType: 'states',
+          quizType: 'countries',
           score: _score,
           total: _countries.length,
         );
@@ -385,7 +385,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
 
                       final close = await saveScoreWithAuthGate(
                         context: context,
-                        quizType: 'states',
+                        quizType: 'countries',
                         score: _score,
                         total: _countries.length,
                       );
