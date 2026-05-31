@@ -36,6 +36,10 @@ const newAliases = [
         shortName: "saint vincent"
     },
     {
+        cca2: "KN",
+        shortName: "saint christophe"
+    },
+    {
         cca2: "ST",
         shortName: "sao tome"
     },

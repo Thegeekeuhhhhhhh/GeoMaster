@@ -41,6 +41,15 @@ class CountriesMapPageState extends State<CountriesMapPage>
         _byShortName[c.shortName] = c;
       }
     }
+
+    for (final entry in CountryService.countryNames.entries) {
+      final normalizedAlias = entry.key;
+      final country = entry.value;
+
+      if (_countries.any((c) => c.cca2 == country.cca2)) {
+        _byTrimmedName.putIfAbsent(normalizedAlias, () => country);
+      }
+    }
   }
 
   @override
@@ -259,9 +268,7 @@ class CountriesMapPageState extends State<CountriesMapPage>
     final normalized = Country.normalize(value);
 
     final Country? match =
-        _byTrimmedName[normalized] ??
-        _byShortName[normalized] ??
-        CountryService.countryNames[normalized];
+        _byTrimmedName[normalized] ?? _byShortName[normalized];
 
     if (match == null || _correctCodes.contains(match.cca2.toLowerCase()))
       return;
